@@ -36,6 +36,7 @@ import { MainNav as Menu } from 'src/components/Menu';
 import { Tooltip } from 'src/components/Tooltip';
 import Icons from 'src/components/Icons';
 import Label from 'src/components/Label';
+import WalletConnector from 'src/components/WalletConnector';
 import { findPermission } from 'src/utils/findPermission';
 import { isUserAdmin } from 'src/dashboard/util/permissionUtils';
 import {
@@ -98,9 +99,11 @@ const StyledAnchor = styled.a`
   padding-left: ${({ theme }) => theme.gridUnit}px;
 `;
 
+
 const tagStyles = (theme: SupersetTheme) => css`
   color: ${theme.colors.grayscale.light5};
 `;
+
 
 const styledChildMenu = (theme: SupersetTheme) => css`
   &:hover {
@@ -560,11 +563,14 @@ const RightMenu = ({
         </StyledAnchor>
       )}
       {navbarRight.user_is_anonymous && (
+        <WalletConnector />
+      )}
+      {/* {navbarRight.user_is_anonymous && (
         <StyledAnchor href={navbarRight.user_login_url}>
           <i className="fa fa-fw fa-sign-in" />
           {t('Login')}
         </StyledAnchor>
-      )}
+      )} */}
     </StyledDiv>
   );
 };

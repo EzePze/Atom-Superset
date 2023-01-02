@@ -109,7 +109,7 @@ PACKAGE_JSON_FILE = pkg_resources.resource_filename(
 #     "type": "image/png"
 #     "rel": "icon"
 # },
-FAVICONS = [{"href": "/static/assets/images/favicon.png"}]
+FAVICONS = [{"href": "/static/assets/images/l3_atom_logo_short.png"}]
 
 
 def _try_json_readversion(filepath: str) -> Optional[str]:
@@ -278,10 +278,10 @@ SCHEDULED_QUERIES: Dict[str, Any] = {}
 # GLOBALS FOR APP Builder
 # ------------------------------
 # Uncomment to setup Your App name
-APP_NAME = "Superset"
+APP_NAME = "L3 Atom Query Service"
 
 # Specify the App icon
-APP_ICON = "/static/assets/images/superset-logo-horiz.png"
+APP_ICON = "/static/assets/images/l3_atom_logo.png"
 
 # Specify where clicking the logo would take the user
 # e.g. setting it to '/' would take the user to '/superset/welcome/'
@@ -1276,7 +1276,7 @@ EMAIL_PAGE_RENDER_WAIT = int(timedelta(seconds=30).total_seconds())
 BUG_REPORT_URL = None
 
 # Send user to a link where they can read more about Superset
-DOCUMENTATION_URL = None
+DOCUMENTATION_URL = "https://gda-fund.gitbook.io/l3-atom-v3-documentation/"
 DOCUMENTATION_TEXT = "Documentation"
 DOCUMENTATION_ICON = None  # Recommended size: 16x16
 
