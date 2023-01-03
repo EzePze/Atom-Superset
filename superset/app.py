@@ -35,7 +35,6 @@ def create_app() -> Flask:
 
         app_initializer = app.config.get("APP_INITIALIZER", SupersetAppInitializer)(app)
         app_initializer.init_app()
-
         return app
 
     # Make sure that bootstrap errors ALWAYS get logged

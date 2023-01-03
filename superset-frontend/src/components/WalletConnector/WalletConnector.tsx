@@ -14,8 +14,9 @@ const StyledConnectWallet = styled.button`
 `
 
 // TODO: Route to Flask API to get nonce
-async function getNonce() {
-    return 'test';
+async function getNonce(address: string) {
+    const data:object = await fetch(`/get_nonce?address=${address}`).then(res => res.json());
+    return data.nonce;
 }
 
 async function handleWalletConnect() {
@@ -26,9 +27,11 @@ async function handleWalletConnect() {
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
     const address = await signer.getAddress();
-    const nonce = await getNonce();
+    const nonce = await getNonce(address);
     const signature = await signer.signMessage(nonce);
     console.log(address, nonce, signature);
+    await fetch(`/login?address=${address}&signature=${signature}`)
+    location.reload();
 }
 
 function WalletConnector() {

@@ -108,13 +108,6 @@ class Api(BaseSupersetView):
         except (ValueError, TimeRangeParseFailError, TimeRangeAmbiguousError) as error:
             error_msg = {"message": f"Unexpected time range: {error}"}
             return self.json_response(error_msg, 400)
-
-    @api
-    @handle_api_exception
-    @expose("/v1/get_nonce/", methods=["GET"])
-    def get_nonce(self) -> FlaskResponse:
-        """Create a random nonce for the user to sign"""
-        return self.json_response({"nonce": f"Sign this nonce to log in: {str(uuid4())}"})
         
 
     def get_query_context_factory(self) -> QueryContextFactory:

@@ -182,7 +182,9 @@ SUPERSET_DASHBOARD_PERIODICAL_REFRESH_LIMIT = 0
 SUPERSET_DASHBOARD_PERIODICAL_REFRESH_WARNING_MESSAGE = None
 
 SUPERSET_DASHBOARD_POSITION_DATA_LIMIT = 65535
-CUSTOM_SECURITY_MANAGER = None
+
+from superset.security import Web3SecurityManager
+CUSTOM_SECURITY_MANAGER = Web3SecurityManager
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 # ---------------------------------------------------------
 
@@ -344,7 +346,7 @@ AUTH_TYPE = AUTH_DB
 # Grant public role the same set of permissions as for a selected builtin role.
 # This is useful if one wants to enable anonymous users to view
 # dashboards. Explicit grant on specific datasets is still required.
-PUBLIC_ROLE_LIKE: Optional[str] = None
+PUBLIC_ROLE_LIKE: Optional[str] = 'Gamma'
 
 # ---------------------------------------------------
 # Babel config for translations
