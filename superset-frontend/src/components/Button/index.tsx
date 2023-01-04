@@ -63,6 +63,7 @@ export default function Button(props: ButtonProps) {
     children,
     href,
     showMarginRight = true,
+    ghost = false,
     ...restProps
   } = props;
 
@@ -86,6 +87,7 @@ export default function Button(props: ButtonProps) {
   let backgroundColorDisabled = grayscale.light2;
   let color = primary.dark1;
   let colorHover = color;
+
   let borderWidth = 0;
   let borderStyle = 'none';
   let borderColor = 'transparent';
@@ -96,8 +98,15 @@ export default function Button(props: ButtonProps) {
     backgroundColor = primary.base;
     backgroundColorHover = primary.dark1;
     backgroundColorActive = mix(0.2, grayscale.dark2, primary.dark1);
-    color = grayscale.light5;
+    color = ghost ? primary.atom1 : grayscale.light5;
     colorHover = color;
+    if (ghost) {
+      borderWidth = 1;
+      borderStyle = 'solid';
+      borderColor = primary.atom1;
+      borderColorHover = primary.atom1;
+      borderColorDisabled = primary.atom1;
+    }
   } else if (buttonStyle === 'tertiary' || buttonStyle === 'dashed') {
     backgroundColor = grayscale.light5;
     backgroundColorHover = grayscale.light5;
@@ -199,6 +208,7 @@ export default function Button(props: ButtonProps) {
           marginRight: firstChildMargin,
         },
       }}
+      ghost={ghost}
       {...restProps}
     >
       {children}

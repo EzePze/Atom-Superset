@@ -70,6 +70,16 @@ function DashboardCard({
   const canExport = hasPerm('can_export');
 
   const theme = useTheme();
+
+  const description = (
+    <div>
+      <p style={{ color: theme.colors.grayscale.dark1 }}>
+        {dashboard.description || 'No Description'}
+      </p>
+      <>Last Modified: {dashboard.changed_on_delta_humanized}</>
+    </div>
+  )
+
   const menu = (
     <Menu>
       {canEdit && openDashboardEditModal && (
@@ -148,9 +158,6 @@ function DashboardCard({
         title={dashboard.dashboard_title}
         certifiedBy={dashboard.certified_by}
         certificationDetails={dashboard.certification_details}
-        titleRight={
-          <Label>{dashboard.published ? t('published') : t('draft')}</Label>
-        }
         cover={
           !isFeatureEnabled(FeatureFlag.THUMBNAILS) || !showThumbnails ? (
             <></>
@@ -160,7 +167,7 @@ function DashboardCard({
         linkComponent={Link}
         imgURL={dashboard.thumbnail_url}
         imgFallbackURL="/static/assets/images/dashboard-card-fallback.svg"
-        description={t('Modified %s', dashboard.changed_on_delta_humanized)}
+        description={description}
         coverLeft={<FacePile users={dashboard.owners || []} />}
         actions={
           <ListViewCard.Actions

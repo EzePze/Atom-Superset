@@ -191,6 +191,7 @@ export interface ButtonProps {
     | 'warning'
     | 'success'
     | 'tertiary';
+  ghost?: boolean;
 }
 
 export interface SubMenuProps {
@@ -325,6 +326,7 @@ const SubMenuComponent: React.FunctionComponent<SubMenuProps> = props => {
               buttonStyle={btn.buttonStyle}
               onClick={btn.onClick}
               data-test={btn['data-test']}
+              ghost={btn.ghost}
             >
               {btn.name}
             </Button>

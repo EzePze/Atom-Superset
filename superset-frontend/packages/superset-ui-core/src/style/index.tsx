@@ -60,7 +60,7 @@ const defaultTheme = {
       help: '#737373',
     },
     primary: {
-      base: '#20A7C9',
+      base: '#0085FF',
       dark1: '#1A85A0',
       dark2: '#156378',
       light1: '#79CADE',
@@ -68,6 +68,7 @@ const defaultTheme = {
       light3: '#D2EDF4',
       light4: '#E9F6F9',
       light5: '#F3F8FA',
+      atom1: '#0085FF',
     },
     secondary: {
       base: '#444E7C',

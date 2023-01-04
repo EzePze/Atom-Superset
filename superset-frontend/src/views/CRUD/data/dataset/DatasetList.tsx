@@ -376,7 +376,7 @@ const DatasetList: FunctionComponent<DatasetListProps> = ({
           },
         }: any) => changedByName,
         Header: t('Modified by'),
-        accessor: 'changed_by.first_name',
+        accessor: 'changed_by.username',
         size: 'xl',
       },
       {

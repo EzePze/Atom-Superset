@@ -418,7 +418,7 @@ function ChartList(props: ChartListProps) {
             <>{changedByName(lastSavedBy)}</>
           ),
         Header: t('Modified by'),
-        accessor: 'last_saved_by.first_name',
+        accessor: 'last_saved_by.username',
         size: 'xl',
       },
       {

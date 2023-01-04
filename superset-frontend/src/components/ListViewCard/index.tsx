@@ -93,9 +93,7 @@ const TitleContainer = styled.div`
 const TitleLink = styled.span`
   overflow: hidden;
   text-overflow: ellipsis;
-  & a {
-    color: ${({ theme }) => theme.colors.grayscale.dark1} !important;
-  }
+  color: ${({ theme }) => theme.colors.primary.atom1} !important;
 `;
 
 const TitleRight = styled.span`
@@ -153,7 +151,7 @@ interface CardProps {
   imgURL?: string;
   imgFallbackURL?: string;
   imgPosition?: BackgroundPosition;
-  description: string;
+  description: React.ReactNode;
   loading?: boolean;
   titleRight?: React.ReactNode;
   coverLeft?: React.ReactNode;

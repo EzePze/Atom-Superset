@@ -44,11 +44,16 @@ const ListViewStyles = styled.div`
   .superset-list-view {
     text-align: left;
     border-radius: 4px 0;
-    margin: 0 ${({ theme }) => theme.gridUnit * 4}px;
+    margin: ${({ theme }) => theme.gridUnit * 4}px 0;
 
     .header {
       display: flex;
-      padding-bottom: ${({ theme }) => theme.gridUnit * 4}px;
+      padding-bottom: ${({ theme }) => theme.gridUnit * 6}px;
+      padding-top: ${({ theme }) => theme.gridUnit * 6}px;
+      padding: ${({ theme }) =>
+        `${theme.gridUnit * 6}px ${theme.gridUnit * 9}px`};
+      background-color: ${({ theme }) =>
+        theme.colors.grayscale.light3} !important;
 
       & .controls {
         display: flex;
@@ -56,6 +61,11 @@ const ListViewStyles = styled.div`
         column-gap: ${({ theme }) => theme.gridUnit * 6}px;
         row-gap: ${({ theme }) => theme.gridUnit * 4}px;
       }
+    }
+
+    .header-right {
+      display: flex;
+      margin-left: auto;
     }
 
     .body.empty table {
@@ -310,9 +320,6 @@ function ListView<T extends object = any>({
     <ListViewStyles>
       <div data-test={className} className={`superset-list-view ${className}`}>
         <div className="header">
-          {cardViewEnabled && (
-            <ViewModeToggle mode={viewMode} setMode={setViewMode} />
-          )}
           <div className="controls">
             {filterable && (
               <FilterControls
@@ -322,7 +329,12 @@ function ListView<T extends object = any>({
                 updateFilterValue={applyFilterValue}
               />
             )}
-            {viewMode === 'card' && cardSortSelectOptions && (
+          </div>
+          <div className="header-right">
+            {cardViewEnabled && (
+              <ViewModeToggle mode={viewMode} setMode={setViewMode} />
+            )}
+            {cardSortSelectOptions && (
               <CardSortSelect
                 initialSort={initialSort}
                 onChange={fetchData}
