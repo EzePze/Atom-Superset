@@ -178,6 +178,13 @@ export const getUserOwnedObjects = (
     endpoint: `/api/v1/${resource}/?q=${getParams(filters)}`,
   }).then(res => res.json?.result);
 
+export const getResourceByModifyTime = (resource: string) =>
+  SupersetClient.get({ endpoint: `/api/v1/${resource}` }).then(res => {
+    const ret = res.json?.result;
+    ret.sort(o => new Date(o.changed_on_utc).getTime(), 'desc');
+    return ret;
+  });
+
 export const getRecentAcitivtyObjs = (
   userId: string | number,
   recent: string,

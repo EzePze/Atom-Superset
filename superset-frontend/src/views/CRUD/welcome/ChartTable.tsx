@@ -39,7 +39,7 @@ import {
   getFilterValues,
   PAGE_SIZE,
 } from 'src/views/CRUD/utils';
-import { LoadingCards } from 'src/views/CRUD/welcome/Welcome';
+import { LoadingCards } from 'src/views/CRUD/welcome/UserWelcome';
 import ChartCard from 'src/views/CRUD/chart/ChartCard';
 import Chart from 'src/types/Chart';
 import handleResourceExport from 'src/utils/export';
@@ -71,10 +71,9 @@ function ChartTable({
   otherTabTitle,
 }: ChartTableProps) {
   const history = useHistory();
-  const initialTab = getItem(
-    LocalStorageKeys.homepage_chart_filter,
-    TableTab.Other,
-  );
+  const initialTab = user?.userId
+    ? getItem(LocalStorageKeys.homepage_dashboard_filter, TableTab.Other)
+    : TableTab.Mine;
 
   const filteredOtherTabData = filter(otherTabData, obj => 'viz_type' in obj);
 
@@ -125,7 +124,7 @@ function ChartTable({
     });
 
   useEffect(() => {
-    if (loaded || activeTab === TableTab.Favorite) {
+    if (user?.userId && (loaded || activeTab === TableTab.Favorite)) {
       getData(activeTab);
     }
     setLoaded(true);
@@ -141,22 +140,24 @@ function ChartTable({
 
   const menuTabs = [
     {
+      name: TableTab.Mine,
+      label: user?.userId ? t('Mine') : t('All'),
+      onClick: () => {
+        setActiveTab(TableTab.Mine);
+        setItem(LocalStorageKeys.homepage_dashboard_filter, TableTab.Mine);
+      },
+    },
+  ];
+  if (user?.userId) {
+    menuTabs.push({
       name: TableTab.Favorite,
       label: t('Favorite'),
       onClick: () => {
         setActiveTab(TableTab.Favorite);
-        setItem(LocalStorageKeys.homepage_chart_filter, TableTab.Favorite);
+        setItem(LocalStorageKeys.homepage_dashboard_filter, TableTab.Favorite);
       },
-    },
-    {
-      name: TableTab.Mine,
-      label: t('Mine'),
-      onClick: () => {
-        setActiveTab(TableTab.Mine);
-        setItem(LocalStorageKeys.homepage_chart_filter, TableTab.Mine);
-      },
-    },
-  ];
+    });
+  }
   if (otherTabData) {
     menuTabs.push({
       name: TableTab.Other,

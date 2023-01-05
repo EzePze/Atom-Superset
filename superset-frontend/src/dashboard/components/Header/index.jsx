@@ -116,7 +116,7 @@ const defaultProps = {
 };
 
 const headerContainerStyle = theme => css`
-  border-bottom: 1px solid ${theme.colors.grayscale.light2};
+
 `;
 
 const editButtonStyle = theme => css`
@@ -136,6 +136,10 @@ const actionButtonsStyle = theme => css`
     margin-right: ${theme.gridUnit * 2}px;
   }
 `;
+
+const dashboardDescriptionStyle = theme => css`
+  padding: 0 ${theme.gridUnit * 4}px;
+`
 
 const StyledUndoRedoButton = styled(AntdButton)`
   padding: 0;
@@ -706,6 +710,11 @@ class Header extends React.PureComponent {
             dashboardId={dashboardInfo.id}
           />
         )}
+        <div className='dashboard-description' css={dashboardDescriptionStyle}>
+          <b>{t('Dashboard Description')}</b>
+          <br />
+          {dashboardInfo.description && t(dashboardInfo.description)}
+        </div>
         <Global
           styles={css`
             .ant-menu-vertical {

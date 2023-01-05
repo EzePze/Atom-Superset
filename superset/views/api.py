@@ -35,6 +35,7 @@ from superset.superset_typing import FlaskResponse
 from superset.utils import core as utils
 from superset.utils.date_parser import get_since_until
 from superset.views.base import api, BaseSupersetView, handle_api_exception
+from uuid import uuid4
 
 if TYPE_CHECKING:
     from superset.common.query_context_factory import QueryContextFactory
@@ -107,6 +108,7 @@ class Api(BaseSupersetView):
         except (ValueError, TimeRangeParseFailError, TimeRangeAmbiguousError) as error:
             error_msg = {"message": f"Unexpected time range: {error}"}
             return self.json_response(error_msg, 400)
+        
 
     def get_query_context_factory(self) -> QueryContextFactory:
         if self.query_context_factory is None:

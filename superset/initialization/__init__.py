@@ -244,7 +244,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         appbuilder.add_view(
             SliceModelView,
             "Charts",
-            label=__("Charts"),
+            label=__("Queries"),
             icon="fa-bar-chart",
             category="",
             category_icon="",
@@ -257,6 +257,15 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             icon="fa-table",
             category="",
             category_icon="",
+        )
+
+        appbuilder.add_link(
+            "Documentation",
+            label=__("Documentation"),
+            href="https://gda-fund.gitbook.io/l3-atom-v3-documentation/",
+            category="",
+            category_icon="",
+            icon="fa-book"
         )
 
         appbuilder.add_view(
@@ -332,31 +341,6 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             cond=lambda: not feature_flag_manager.is_feature_enabled(
                 "VERSIONED_EXPORT"
             ),
-        )
-        appbuilder.add_link(
-            "SQL Editor",
-            label=_("SQL Lab"),
-            href="/superset/sqllab/",
-            category_icon="fa-flask",
-            icon="fa-flask",
-            category="SQL Lab",
-            category_label=__("SQL"),
-        )
-        appbuilder.add_link(
-            __("Saved Queries"),
-            href="/savedqueryview/list/",
-            icon="fa-save",
-            category="SQL Lab",
-            category_label=__("SQL"),
-        )
-        appbuilder.add_link(
-            "Query Search",
-            label=_("Query History"),
-            href="/superset/sqllab/history/",
-            icon="fa-search",
-            category_icon="fa-flask",
-            category="SQL Lab",
-            category_label=__("SQL"),
         )
 
         appbuilder.add_api(LogRestApi)

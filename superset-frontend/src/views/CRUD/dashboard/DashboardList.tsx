@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { styled, SupersetClient, t } from '@superset-ui/core';
+import { styled, SupersetClient, t, supersetTheme } from '@superset-ui/core';
 import React, { useState, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import rison from 'rison';
@@ -56,15 +56,15 @@ import { DashboardStatus } from './types';
 const PAGE_SIZE = 25;
 const PASSWORDS_NEEDED_MESSAGE = t(
   'The passwords for the databases below are needed in order to ' +
-    'import them together with the dashboards. Please note that the ' +
-    '"Secure Extra" and "Certificate" sections of ' +
-    'the database configuration are not present in export files, and ' +
-    'should be added manually after the import if they are needed.',
+  'import them together with the dashboards. Please note that the ' +
+  '"Secure Extra" and "Certificate" sections of ' +
+  'the database configuration are not present in export files, and ' +
+  'should be added manually after the import if they are needed.',
 );
 const CONFIRM_OVERWRITE_MESSAGE = t(
   'You are importing one or more dashboards that already exist. ' +
-    'Overwriting might cause you to lose some of your work. Are you ' +
-    'sure you want to overwrite?',
+  'Overwriting might cause you to lose some of your work. Are you ' +
+  'sure you want to overwrite?',
 );
 
 interface DashboardListProps {
@@ -89,6 +89,7 @@ interface Dashboard {
   thumbnail_url: string;
   owners: Owner[];
   created_by: object;
+  description: string;
 }
 
 const Actions = styled.div`
@@ -185,6 +186,7 @@ function DashboardList(props: DashboardListProps) {
                 certified_by = '',
                 certification_details = '',
                 owners,
+                description = '',
               } = json.result;
               return {
                 ...dashboard,
@@ -199,6 +201,7 @@ function DashboardList(props: DashboardListProps) {
                 certified_by,
                 certification_details,
                 owners,
+                description,
               };
             }
             return dashboard;
@@ -283,56 +286,35 @@ function DashboardList(props: DashboardListProps) {
             {dashboardTitle}
           </Link>
         ),
-        Header: t('Title'),
+        Header: t('Dashboards'),
         accessor: 'dashboard_title',
       },
 
       {
         Cell: ({
           row: {
-            original: {
-              changed_by_name: changedByName,
-              changed_by_url: changedByUrl,
-            },
+            original: { description: dashboardDescription },
           },
-        }: any) =>
-          enableBroadUserAccess ? (
-            <a href={changedByUrl}>{changedByName}</a>
-          ) : (
-            <>{changedByName}</>
-          ),
-        Header: t('Modified by'),
-        accessor: 'changed_by.first_name',
+        }: any) => dashboardDescription || '',
+        Header: t('Details'),
+        accessor: 'dashboard_description',
         size: 'xl',
       },
-      {
-        Cell: ({
-          row: {
-            original: { status },
-          },
-        }: any) =>
-          status === DashboardStatus.PUBLISHED ? t('Published') : t('Draft'),
-        Header: t('Status'),
-        accessor: 'published',
-        size: 'xl',
-      },
-      {
-        Cell: ({
-          row: {
-            original: { changed_on_delta_humanized: changedOn },
-          },
-        }: any) => <span className="no-wrap">{changedOn}</span>,
-        Header: t('Modified'),
-        accessor: 'changed_on_delta_humanized',
-        size: 'xl',
-      },
+
       {
         Cell: ({
           row: {
             original: { created_by: createdBy },
           },
         }: any) =>
-          createdBy ? `${createdBy.first_name} ${createdBy.last_name}` : '',
+          createdBy &&
+          (enableBroadUserAccess ? (
+            <a href={`/superset/profile/${createdBy.username}`}>
+              {createdBy.username}
+            </a>
+          ) : (
+            <>{createdBy.username}</>
+          )),
         Header: t('Created by'),
         accessor: 'created_by',
         disableSortBy: true,
@@ -341,12 +323,11 @@ function DashboardList(props: DashboardListProps) {
       {
         Cell: ({
           row: {
-            original: { owners = [] },
+            original: { changed_on_delta_humanized: changedOn },
           },
-        }: any) => <FacePile users={owners} />,
-        Header: t('Owners'),
-        accessor: 'owners',
-        disableSortBy: true,
+        }: any) => <span className="no-wrap">{changedOn}</span>,
+        Header: t('Last Modified'),
+        accessor: 'changed_on_delta_humanized',
         size: 'xl',
       },
       {
@@ -466,81 +447,11 @@ function DashboardList(props: DashboardListProps) {
   const filters: Filters = useMemo(
     () => [
       {
-        Header: t('Search'),
+        Header: 'Search',
         key: 'search',
         id: 'dashboard_title',
         input: 'search',
         operator: FilterOperator.titleOrSlug,
-      },
-      {
-        Header: t('Owner'),
-        key: 'owner',
-        id: 'owners',
-        input: 'select',
-        operator: FilterOperator.relationManyMany,
-        unfilteredLabel: t('All'),
-        fetchSelects: createFetchRelated(
-          'dashboard',
-          'owners',
-          createErrorHandler(errMsg =>
-            addDangerToast(
-              t(
-                'An error occurred while fetching dashboard owner values: %s',
-                errMsg,
-              ),
-            ),
-          ),
-          props.user,
-        ),
-        paginate: true,
-      },
-      {
-        Header: t('Created by'),
-        key: 'created_by',
-        id: 'created_by',
-        input: 'select',
-        operator: FilterOperator.relationOneMany,
-        unfilteredLabel: t('All'),
-        fetchSelects: createFetchRelated(
-          'dashboard',
-          'created_by',
-          createErrorHandler(errMsg =>
-            addDangerToast(
-              t(
-                'An error occurred while fetching dashboard created by values: %s',
-                errMsg,
-              ),
-            ),
-          ),
-          props.user,
-        ),
-        paginate: true,
-      },
-      {
-        Header: t('Status'),
-        key: 'published',
-        id: 'published',
-        input: 'select',
-        operator: FilterOperator.equals,
-        unfilteredLabel: t('Any'),
-        selects: [
-          { label: t('Published'), value: true },
-          { label: t('Draft'), value: false },
-        ],
-      },
-      ...(userId ? [favoritesFilter] : []),
-      {
-        Header: t('Certified'),
-        key: 'certified',
-        id: 'id',
-        urlDisplay: 'certified',
-        input: 'select',
-        operator: FilterOperator.dashboardIsCertified,
-        unfilteredLabel: t('Any'),
-        selects: [
-          { label: t('Yes'), value: true },
-          { label: t('No'), value: false },
-        ],
       },
     ],
     [addDangerToast, favoritesFilter, props.user],
@@ -616,13 +527,14 @@ function DashboardList(props: DashboardListProps) {
     subMenuButtons.push({
       name: (
         <>
-          <i className="fa fa-plus" /> {t('Dashboard')}
+          <i className="fa fa-plus" /> {t('Create New')}
         </>
       ),
       buttonStyle: 'primary',
       onClick: () => {
         window.location.assign('/dashboard/new');
       },
+      ghost: true,
     });
 
     if (isFeatureEnabled(FeatureFlag.VERSIONED_EXPORT)) {

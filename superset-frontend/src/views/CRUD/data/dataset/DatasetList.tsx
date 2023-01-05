@@ -339,17 +339,6 @@ const DatasetList: FunctionComponent<DatasetListProps> = ({
         accessor: 'table_name',
       },
       {
-        Cell: ({
-          row: {
-            original: { kind },
-          },
-        }: any) => kind[0]?.toUpperCase() + kind.slice(1),
-        Header: t('Type'),
-        accessor: 'kind',
-        disableSortBy: true,
-        size: 'md',
-      },
-      {
         Header: t('Database'),
         accessor: 'database.database_name',
         size: 'lg',
@@ -362,38 +351,31 @@ const DatasetList: FunctionComponent<DatasetListProps> = ({
       {
         Cell: ({
           row: {
-            original: { changed_on_delta_humanized: changedOn },
+            original: { changed_by: changedBy },
           },
-        }: any) => <span className="no-wrap">{changedOn}</span>,
-        Header: t('Modified'),
-        accessor: 'changed_on_delta_humanized',
+        }: any) =>
+          changedBy && (
+            <a href={`/superset/profile/${changedBy.username}`}>{changedBy.username}</a>
+          ),
+        Header: t('Modified by'),
+        accessor: 'changed_by',
+        disableSortBy: true,
         size: 'xl',
       },
       {
         Cell: ({
           row: {
-            original: { changed_by_name: changedByName },
+            original: { changed_on_delta_humanized: changedOn },
           },
-        }: any) => changedByName,
-        Header: t('Modified by'),
-        accessor: 'changed_by.first_name',
+        }: any) => <span className="no-wrap">{changedOn}</span>,
+        Header: t('Last Modified'),
+        accessor: 'changed_on_delta_humanized',
         size: 'xl',
       },
       {
         accessor: 'database',
         disableSortBy: true,
         hidden: true,
-      },
-      {
-        Cell: ({
-          row: {
-            original: { owners = [] },
-          },
-        }: any) => <FacePile users={owners} />,
-        Header: t('Owners'),
-        id: 'owners',
-        disableSortBy: true,
-        size: 'lg',
       },
       {
         accessor: 'sql',
@@ -501,83 +483,6 @@ const DatasetList: FunctionComponent<DatasetListProps> = ({
   const filterTypes: Filters = useMemo(
     () => [
       {
-        Header: t('Owner'),
-        key: 'owner',
-        id: 'owners',
-        input: 'select',
-        operator: FilterOperator.relationManyMany,
-        unfilteredLabel: 'All',
-        fetchSelects: createFetchRelated(
-          'dataset',
-          'owners',
-          createErrorHandler(errMsg =>
-            t(
-              'An error occurred while fetching dataset owner values: %s',
-              errMsg,
-            ),
-          ),
-          user,
-        ),
-        paginate: true,
-      },
-      {
-        Header: t('Database'),
-        key: 'database',
-        id: 'database',
-        input: 'select',
-        operator: FilterOperator.relationOneMany,
-        unfilteredLabel: 'All',
-        fetchSelects: createFetchRelated(
-          'dataset',
-          'database',
-          createErrorHandler(errMsg =>
-            t('An error occurred while fetching datasets: %s', errMsg),
-          ),
-        ),
-        paginate: true,
-      },
-      {
-        Header: t('Schema'),
-        key: 'schema',
-        id: 'schema',
-        input: 'select',
-        operator: FilterOperator.equals,
-        unfilteredLabel: 'All',
-        fetchSelects: createFetchDistinct(
-          'dataset',
-          'schema',
-          createErrorHandler(errMsg =>
-            t('An error occurred while fetching schema values: %s', errMsg),
-          ),
-        ),
-        paginate: true,
-      },
-      {
-        Header: t('Type'),
-        key: 'sql',
-        id: 'sql',
-        input: 'select',
-        operator: FilterOperator.datasetIsNullOrEmpty,
-        unfilteredLabel: 'All',
-        selects: [
-          { label: 'Virtual', value: false },
-          { label: 'Physical', value: true },
-        ],
-      },
-      {
-        Header: t('Certified'),
-        key: 'certified',
-        id: 'id',
-        urlDisplay: 'certified',
-        input: 'select',
-        operator: FilterOperator.datasetIsCertified,
-        unfilteredLabel: t('Any'),
-        selects: [
-          { label: t('Yes'), value: true },
-          { label: t('No'), value: false },
-        ],
-      },
-      {
         Header: t('Search'),
         key: 'search',
         id: 'table_name',
@@ -587,6 +492,27 @@ const DatasetList: FunctionComponent<DatasetListProps> = ({
     ],
     [],
   );
+
+  const sortTypes = [
+    {
+      desc: false,
+      id: 'table_name',
+      label: t('Alphabetical'),
+      value: 'alphabetical',
+    },
+    {
+      desc: true,
+      id: 'changed_on_delta_humanized',
+      label: t('Recently modified'),
+      value: 'recently_modified',
+    },
+    {
+      desc: false,
+      id: 'changed_on_delta_humanized',
+      label: t('Least recently modified'),
+      value: 'least_recently_modified',
+    },
+  ];
 
   const menuData: SubMenuProps = {
     activeChild: 'Datasets',
@@ -627,11 +553,12 @@ const DatasetList: FunctionComponent<DatasetListProps> = ({
     buttonArr.push({
       name: (
         <>
-          <i className="fa fa-plus" /> {t('Dataset')}{' '}
+          <i className="fa fa-plus" /> {t('Create New')}{' '}
         </>
       ),
       onClick: openDatasetAddModal,
       buttonStyle: 'primary',
+      ghost: true,
     });
 
     if (isFeatureEnabled(FeatureFlag.VERSIONED_EXPORT)) {
@@ -791,6 +718,7 @@ const DatasetList: FunctionComponent<DatasetListProps> = ({
           }
           return (
             <ListView<Dataset>
+              cardSortSelectOptions={sortTypes}
               className="dataset-list-view"
               columns={columns}
               data={datasets}
