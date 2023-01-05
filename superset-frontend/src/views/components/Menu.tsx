@@ -239,7 +239,7 @@ export function Menu({
     <StyledHeader className="top" id="main-menu" role="navigation">
       <Global styles={globalStyles(theme)} />
       <Row>
-        <Col md={16} xs={24}>
+        <Col md={12} xs={24}>
           <Tooltip
             id="brand-tooltip"
             placement="bottomLeft"
@@ -287,7 +287,7 @@ export function Menu({
             })}
           </DropdownMenu>
         </Col>
-        <Col md={8} xs={24}>
+        <Col md={12} xs={24}>
           <RightMenu
             align={screens.md ? 'flex-end' : 'flex-start'}
             settings={settings}

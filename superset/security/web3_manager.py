@@ -4,6 +4,7 @@ from flask_appbuilder.security.registerviews import BaseRegisterUser
 from flask_appbuilder.security.views import AuthDBView, UserDBModelView
 from flask_babel import lazy_gettext
 from flask_appbuilder.views import expose
+from flask_appbuilder.security.forms import LoginForm_db
 from sqlalchemy import Column, String, Integer, Sequence
 from sqlalchemy import Boolean
 from flask import request, redirect, g
@@ -11,11 +12,11 @@ from web3 import Web3
 from hexbytes import HexBytes
 from eth_account.messages import encode_defunct
 from uuid import uuid4
-from flask_login import login_user, LoginManager
+from flask_login import login_user
 from superset.security.manager import SupersetSecurityListWidget
 from superset.constants import RouteMethod
-from flask import Response
-from flask import jsonify
+from flask import Response, jsonify, flash
+from flask_appbuilder._compat import as_unicode
 import json
 
 def generate_nonce():
@@ -53,7 +54,7 @@ class Web3AuthDBView(AuthDBView):
     """
     Extends the base superset auth view to allow for web3 authentication via nonce signing
     """
-    @expose("/login/", methods=["GET"])
+    @expose("/login/", methods=["GET", "POST"])
     def login(self):
         """
         Handles the login request
@@ -63,6 +64,19 @@ class Web3AuthDBView(AuthDBView):
         address = request.args.get("address")
         signature = request.args.get("signature")
         if not address or not signature:
+            form = LoginForm_db()
+            if form.validate_on_submit():
+                user = self.appbuilder.sm.find_user(form.username.data)
+                # Since Web3 users don't have passwords, we need to protect against non-web3 login attempts
+                if user.address:
+                    flash("Please login with web3", "warning")
+                    return redirect(self.appbuilder.get_url_for_index)
+                user = self.appbuilder.sm.auth_user_db(form.username.data, form.password.data)
+                if not user:
+                    flash(as_unicode(self.invalid_login_message), "warning")
+                    return redirect(self.appbuilder.get_url_for_login)
+                login_user(user)
+                return redirect(self.appbuilder.get_url_for_index)
             return super(Web3AuthDBView, self).login()
         if address and signature:
             w3 = Web3(Web3.HTTPProvider(""))
@@ -116,10 +130,12 @@ class Web3SecurityManager(SupersetSecurityManager):
         """
         return self.get_session.query(self.user_model).filter_by(address=address).first()
 
-    def add_user(self, nonce=None, address=None, username=None, first_name="", last_name="", email="", role='Public'):
+    def add_user(self, username=None, first_name="", last_name="", email="", role='Public', password=None, nonce=None, address=None):
         """
         Adds a new user to the database
         """
+        if not address and password:
+            return super(Web3SecurityManager, self).add_user(username, first_name, last_name, email, role, password)
         user = self.user_model()
         user.nonce = nonce
         user.address = address

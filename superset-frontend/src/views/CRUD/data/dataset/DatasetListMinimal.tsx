@@ -70,6 +70,8 @@ import {
 } from './constants';
 import DuplicateDatasetModal from './DuplicateDatasetModal';
 
+const MINIMAL_PAGE_SIZE = 10;
+
 const FlexRowContainer = styled.div`
   align-items: center;
   display: flex;
@@ -134,7 +136,7 @@ interface DatasetListProps {
   };
 }
 
-const DatasetList: FunctionComponent<DatasetListProps> = ({
+const DatasetListMinimal: FunctionComponent<DatasetListProps> = ({
   addDangerToast,
   addSuccessToast,
   user,
@@ -152,36 +154,8 @@ const DatasetList: FunctionComponent<DatasetListProps> = ({
     refreshData,
   } = useListViewResource<Dataset>('dataset', t('dataset'), addDangerToast);
 
-  const [datasetAddModalOpen, setDatasetAddModalOpen] =
-    useState<boolean>(false);
-
-  const [datasetCurrentlyDeleting, setDatasetCurrentlyDeleting] = useState<
-    (Dataset & { chart_count: number; dashboard_count: number }) | null
-  >(null);
-
-  const [datasetCurrentlyEditing, setDatasetCurrentlyEditing] =
-    useState<Dataset | null>(null);
-
   const [datasetCurrentlyDuplicating, setDatasetCurrentlyDuplicating] =
     useState<VirtualDataset | null>(null);
-
-  const [importingDataset, showImportModal] = useState<boolean>(false);
-  const [passwordFields, setPasswordFields] = useState<string[]>([]);
-  const [preparingExport, setPreparingExport] = useState<boolean>(false);
-
-  const openDatasetImportModal = () => {
-    showImportModal(true);
-  };
-
-  const closeDatasetImportModal = () => {
-    showImportModal(false);
-  };
-
-  const handleDatasetImport = () => {
-    showImportModal(false);
-    refreshData();
-    addSuccessToast(t('Dataset imported'));
-  };
 
   const canEdit = hasPerm('can_write');
   const canDelete = hasPerm('can_write');
@@ -191,12 +165,6 @@ const DatasetList: FunctionComponent<DatasetListProps> = ({
     hasPerm('can_export') && isFeatureEnabled(FeatureFlag.VERSIONED_EXPORT);
 
   const initialSort = SORT_BY;
-  useEffect(() => {
-    const db = getItem(LocalStorageKeys.db, null);
-    if (!loading && db) {
-      setDatasetAddModalOpen(true);
-    }
-  }, [loading]);
 
   const openDatasetEditModal = useCallback(
     ({ id }: Dataset) => {
@@ -355,7 +323,9 @@ const DatasetList: FunctionComponent<DatasetListProps> = ({
           },
         }: any) =>
           changedBy && (
-            <a href={`/superset/profile/${changedBy.username}`}>{changedBy.username}</a>
+            <a href={`/superset/profile/${changedBy.username}`}>
+              {changedBy.username}
+            </a>
           ),
         Header: t('Modified by'),
         accessor: 'changed_by',
@@ -480,40 +450,6 @@ const DatasetList: FunctionComponent<DatasetListProps> = ({
     [canEdit, canDelete, canExport, openDatasetEditModal, canDuplicate],
   );
 
-  const filterTypes: Filters = useMemo(
-    () => [
-      {
-        Header: t('Search'),
-        key: 'search',
-        id: 'table_name',
-        input: 'search',
-        operator: FilterOperator.contains,
-      },
-    ],
-    [],
-  );
-
-  const sortTypes = [
-    {
-      desc: false,
-      id: 'table_name',
-      label: t('Alphabetical'),
-      value: 'alphabetical',
-    },
-    {
-      desc: true,
-      id: 'changed_on_delta_humanized',
-      label: t('Recently modified'),
-      value: 'recently_modified',
-    },
-    {
-      desc: false,
-      id: 'changed_on_delta_humanized',
-      label: t('Least recently modified'),
-      value: 'least_recently_modified',
-    },
-  ];
-
   const menuData: SubMenuProps = {
     activeChild: 'Datasets',
     name: t('Datasets'),
@@ -532,12 +468,6 @@ const DatasetList: FunctionComponent<DatasetListProps> = ({
   const CREATE_HASH = '#create';
   const location = useLocation();
   const history = useHistory();
-
-  //  Sync Dataset Add modal with #create hash
-  useEffect(() => {
-    const modalOpen = location.hash === CREATE_HASH && canCreate;
-    setDatasetAddModalOpen(modalOpen);
-  }, [canCreate, location.hash]);
 
   //  Add #create hash
   const openDatasetAddModal = useCallback(() => {
@@ -579,14 +509,6 @@ const DatasetList: FunctionComponent<DatasetListProps> = ({
   }
 
   menuData.buttons = buttonArr;
-
-  const closeDatasetDeleteModal = () => {
-    setDatasetCurrentlyDeleting(null);
-  };
-
-  const closeDatasetEditModal = () => {
-    setDatasetCurrentlyEditing(null);
-  };
 
   const closeDatasetDuplicateModal = () => {
     setDatasetCurrentlyDuplicating(null);
@@ -653,142 +575,50 @@ const DatasetList: FunctionComponent<DatasetListProps> = ({
 
   return (
     <>
-      <SubMenu {...menuData} />
-      <AddDatasetModal
-        show={datasetAddModalOpen}
-        onHide={closeDatasetAddModal}
-        onDatasetAdd={refreshData}
-        history={history}
-      />
-      {datasetCurrentlyDeleting && (
-        <DeleteModal
-          description={t(
-            'The dataset %s is linked to %s charts that appear on %s dashboards. Are you sure you want to continue? Deleting the dataset will break those objects.',
-            datasetCurrentlyDeleting.table_name,
-            datasetCurrentlyDeleting.chart_count,
-            datasetCurrentlyDeleting.dashboard_count,
-          )}
-          onConfirm={() => {
-            if (datasetCurrentlyDeleting) {
-              handleDatasetDelete(datasetCurrentlyDeleting);
-            }
-          }}
-          onHide={closeDatasetDeleteModal}
-          open
-          title={t('Delete Dataset?')}
-        />
-      )}
-      {datasetCurrentlyEditing && (
-        <DatasourceModal
-          datasource={datasetCurrentlyEditing}
-          onDatasourceSave={refreshData}
-          onHide={closeDatasetEditModal}
-          show
-        />
-      )}
-      <DuplicateDatasetModal
-        dataset={datasetCurrentlyDuplicating}
-        onHide={closeDatasetDuplicateModal}
-        onDuplicate={handleDatasetDuplicate}
-      />
-      <ConfirmStatusChange
-        title={t('Please confirm')}
-        description={t(
-          'Are you sure you want to delete the selected datasets?',
-        )}
-        onConfirm={handleBulkDatasetDelete}
-      >
-        {confirmDelete => {
-          const bulkActions: ListViewProps['bulkActions'] = [];
-          if (canDelete) {
-            bulkActions.push({
-              key: 'delete',
-              name: t('Delete'),
-              onSelect: confirmDelete,
-              type: 'danger',
-            });
-          }
-          if (canExport) {
-            bulkActions.push({
-              key: 'export',
-              name: t('Export'),
-              type: 'primary',
-              onSelect: handleBulkDatasetExport,
-            });
-          }
-          return (
-            <ListView<Dataset>
-              cardSortSelectOptions={sortTypes}
-              className="dataset-list-view"
-              columns={columns}
-              data={datasets}
-              count={datasetCount}
-              pageSize={PAGE_SIZE}
-              fetchData={fetchData}
-              filters={filterTypes}
-              loading={loading}
-              initialSort={initialSort}
-              bulkActions={bulkActions}
-              bulkSelectEnabled={bulkSelectEnabled}
-              disableBulkSelect={toggleBulkSelect}
-              renderBulkSelectCopy={selected => {
-                const { virtualCount, physicalCount } = selected.reduce(
-                  (acc, e) => {
-                    if (e.original.kind === 'physical') acc.physicalCount += 1;
-                    else if (e.original.kind === 'virtual') {
-                      acc.virtualCount += 1;
-                    }
-                    return acc;
-                  },
-                  { virtualCount: 0, physicalCount: 0 },
-                );
+      <ListView<Dataset>
+        className="dataset-list-view"
+        columns={columns}
+        data={datasets}
+        count={datasetCount}
+        pageSize={MINIMAL_PAGE_SIZE}
+        fetchData={fetchData}
+        loading={loading}
+        initialSort={initialSort}
+        bulkSelectEnabled={bulkSelectEnabled}
+        disableBulkSelect={toggleBulkSelect}
+        pagination={false}
+        renderBulkSelectCopy={selected => {
+          const { virtualCount, physicalCount } = selected.reduce(
+            (acc, e) => {
+              if (e.original.kind === 'physical') acc.physicalCount += 1;
+              else if (e.original.kind === 'virtual') {
+                acc.virtualCount += 1;
+              }
+              return acc;
+            },
+            { virtualCount: 0, physicalCount: 0 },
+          );
 
-                if (!selected.length) {
-                  return t('0 Selected');
-                }
-                if (virtualCount && !physicalCount) {
-                  return t(
-                    '%s Selected (Virtual)',
-                    selected.length,
-                    virtualCount,
-                  );
-                }
-                if (physicalCount && !virtualCount) {
-                  return t(
-                    '%s Selected (Physical)',
-                    selected.length,
-                    physicalCount,
-                  );
-                }
+          if (!selected.length) {
+            return t('0 Selected');
+          }
+          if (virtualCount && !physicalCount) {
+            return t('%s Selected (Virtual)', selected.length, virtualCount);
+          }
+          if (physicalCount && !virtualCount) {
+            return t('%s Selected (Physical)', selected.length, physicalCount);
+          }
 
-                return t(
-                  '%s Selected (%s Physical, %s Virtual)',
-                  selected.length,
-                  physicalCount,
-                  virtualCount,
-                );
-              }}
-            />
+          return t(
+            '%s Selected (%s Physical, %s Virtual)',
+            selected.length,
+            physicalCount,
+            virtualCount,
           );
         }}
-      </ConfirmStatusChange>
-
-      <ImportModelsModal
-        resourceName="dataset"
-        resourceLabel={t('dataset')}
-        passwordsNeededMessage={PASSWORDS_NEEDED_MESSAGE}
-        confirmOverwriteMessage={CONFIRM_OVERWRITE_MESSAGE}
-        addDangerToast={addDangerToast}
-        addSuccessToast={addSuccessToast}
-        onModelImport={handleDatasetImport}
-        show={importingDataset}
-        onHide={closeDatasetImportModal}
-        passwordFields={passwordFields}
-        setPasswordFields={setPasswordFields}
       />
-      {preparingExport && <Loading />}
     </>
   );
 };
 
-export default withToasts(DatasetList);
+export default withToasts(DatasetListMinimal);

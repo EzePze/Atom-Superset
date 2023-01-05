@@ -355,7 +355,7 @@ function ChartList(props: ChartListProps) {
             )}
           </FlexRowContainer>
         ),
-        Header: t('Chart'),
+        Header: t('Data Product'),
         accessor: 'slice_name',
       },
       {
@@ -404,21 +404,27 @@ function ChartList(props: ChartListProps) {
         hidden: true,
       },
       {
+        accessor: 'owners',
+        hidden: true,
+        disableSortBy: true,
+      },
+      {
         Cell: ({
           row: {
-            original: {
-              last_saved_by: lastSavedBy,
-              changed_by_url: changedByUrl,
-            },
+            original: { created_by: createdBy },
           },
         }: any) =>
-          enableBroadUserAccess ? (
-            <a href={changedByUrl}>{changedByName(lastSavedBy)}</a>
+          createdBy &&
+          (enableBroadUserAccess ? (
+            <a href={`/superset/profile/${createdBy.username}`}>
+              {createdBy.username}
+            </a>
           ) : (
-            <>{changedByName(lastSavedBy)}</>
-          ),
-        Header: t('Modified by'),
-        accessor: 'last_saved_by.username',
+            <>{createdBy.username}</>
+          )),
+        Header: t('Created by'),
+        accessor: 'created_by',
+        disableSortBy: true,
         size: 'xl',
       },
       {
@@ -433,23 +439,6 @@ function ChartList(props: ChartListProps) {
         ),
         Header: t('Last modified'),
         accessor: 'last_saved_at',
-        size: 'xl',
-      },
-      {
-        accessor: 'owners',
-        hidden: true,
-        disableSortBy: true,
-      },
-      {
-        Cell: ({
-          row: {
-            original: { created_by: createdBy },
-          },
-        }: any) =>
-          createdBy ? `${createdBy.first_name} ${createdBy.last_name}` : '',
-        Header: t('Created by'),
-        accessor: 'created_by',
-        disableSortBy: true,
         size: 'xl',
       },
       {
@@ -573,110 +562,6 @@ function ChartList(props: ChartListProps) {
   const filters: Filters = useMemo(
     () => [
       {
-        Header: t('Owner'),
-        key: 'owner',
-        id: 'owners',
-        input: 'select',
-        operator: FilterOperator.relationManyMany,
-        unfilteredLabel: t('All'),
-        fetchSelects: createFetchRelated(
-          'chart',
-          'owners',
-          createErrorHandler(errMsg =>
-            addDangerToast(
-              t(
-                'An error occurred while fetching chart owners values: %s',
-                errMsg,
-              ),
-            ),
-          ),
-          props.user,
-        ),
-        paginate: true,
-      },
-      {
-        Header: t('Created by'),
-        key: 'created_by',
-        id: 'created_by',
-        input: 'select',
-        operator: FilterOperator.relationOneMany,
-        unfilteredLabel: t('All'),
-        fetchSelects: createFetchRelated(
-          'chart',
-          'created_by',
-          createErrorHandler(errMsg =>
-            addDangerToast(
-              t(
-                'An error occurred while fetching chart created by values: %s',
-                errMsg,
-              ),
-            ),
-          ),
-          props.user,
-        ),
-        paginate: true,
-      },
-      {
-        Header: t('Chart type'),
-        key: 'viz_type',
-        id: 'viz_type',
-        input: 'select',
-        operator: FilterOperator.equals,
-        unfilteredLabel: t('All'),
-        selects: registry
-          .keys()
-          .filter(k => nativeFilterGate(registry.get(k)?.behaviors || []))
-          .map(k => ({ label: registry.get(k)?.name || k, value: k }))
-          .sort((a, b) => {
-            if (!a.label || !b.label) {
-              return 0;
-            }
-
-            if (a.label > b.label) {
-              return 1;
-            }
-            if (a.label < b.label) {
-              return -1;
-            }
-
-            return 0;
-          }),
-      },
-      {
-        Header: t('Dataset'),
-        key: 'dataset',
-        id: 'datasource_id',
-        input: 'select',
-        operator: FilterOperator.equals,
-        unfilteredLabel: t('All'),
-        fetchSelects: createFetchDatasets,
-        paginate: true,
-      },
-      {
-        Header: t('Dashboards'),
-        key: 'dashboards',
-        id: 'dashboards',
-        input: 'select',
-        operator: FilterOperator.relationManyMany,
-        unfilteredLabel: t('All'),
-        fetchSelects: fetchDashboards,
-        paginate: true,
-      },
-      ...(userId ? [favoritesFilter] : []),
-      {
-        Header: t('Certified'),
-        key: 'certified',
-        id: 'id',
-        urlDisplay: 'certified',
-        input: 'select',
-        operator: FilterOperator.chartIsCertified,
-        unfilteredLabel: t('Any'),
-        selects: [
-          { label: t('Yes'), value: true },
-          { label: t('No'), value: false },
-        ],
-      },
-      {
         Header: t('Search'),
         key: 'search',
         id: 'slice_name',
@@ -753,13 +638,14 @@ function ChartList(props: ChartListProps) {
     subMenuButtons.push({
       name: (
         <>
-          <i className="fa fa-plus" /> {t('Chart')}
+          <i className="fa fa-plus" /> {t('Create New')}
         </>
       ),
       buttonStyle: 'primary',
       onClick: () => {
         history.push('/chart/add');
       },
+      ghost: true,
     });
 
     if (isFeatureEnabled(FeatureFlag.VERSIONED_EXPORT)) {
@@ -781,7 +667,7 @@ function ChartList(props: ChartListProps) {
 
   return (
     <>
-      <SubMenu name={t('Charts')} buttons={subMenuButtons} />
+      <SubMenu name={t('Queries (Data Products)')} buttons={subMenuButtons} />
       {sliceCurrentlyEditing && (
         <PropertiesModal
           onHide={closeChartEditModal}

@@ -17,7 +17,7 @@
  * under the License.
  */
 import React from 'react';
-import { t, useTheme } from '@superset-ui/core';
+import { t, useTheme, getChartMetadataRegistry } from '@superset-ui/core';
 import { Link, useHistory } from 'react-router-dom';
 import { isFeatureEnabled, FeatureFlag } from 'src/featureFlags';
 import ConfirmStatusChange from 'src/components/ConfirmStatusChange';
@@ -48,6 +48,8 @@ interface ChartCardProps {
   showThumbnails?: boolean;
   handleBulkChartExport: (chartsToExport: Chart[]) => void;
 }
+
+const registry = getChartMetadataRegistry();
 
 export default function ChartCard({
   chart,
@@ -134,6 +136,16 @@ export default function ChartCard({
       )}
     </Menu>
   );
+
+  const description = (
+    <div>
+      <p style={{ color: theme.colors.grayscale.dark1 }}>
+        {registry.get(chart.viz_type)?.name || chart.viz_type || ''}
+      </p>
+      <>Last Modified: {chart.changed_on_delta_humanized}</>
+    </div>
+  )
+
   return (
     <CardStyles
       onClick={() => {
@@ -155,7 +167,7 @@ export default function ChartCard({
         url={bulkSelectEnabled ? undefined : chart.url}
         imgURL={chart.thumbnail_url || ''}
         imgFallbackURL="/static/assets/images/chart-card-fallback.svg"
-        description={t('Modified %s', chart.changed_on_delta_humanized)}
+        description={description}
         coverLeft={<FacePile users={chart.owners || []} />}
         coverRight={
           <Label type="secondary">{chart.datasource_name_text}</Label>

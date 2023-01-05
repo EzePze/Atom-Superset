@@ -24,7 +24,7 @@ import fetchMock from 'fetch-mock';
 import { act } from 'react-dom/test-utils';
 import configureStore from 'redux-mock-store';
 import * as featureFlags from 'src/featureFlags';
-import Welcome from 'src/views/CRUD/welcome/Welcome';
+import UserWelcome from 'src/views/CRUD/welcome/UserWelcome';
 import { ReactWrapper } from 'enzyme';
 import waitForComponentToPaint from 'spec/helpers/waitForComponentToPaint';
 import { render, screen } from 'spec/helpers/testing-library';
@@ -116,7 +116,7 @@ describe('Welcome', () => {
     await act(async () => {
       wrapper = mount(
         <Provider store={store}>
-          <Welcome {...mockedProps} />
+          <UserWelcome {...mockedProps} />
         </Provider>,
       );
     });
@@ -145,7 +145,7 @@ describe('Welcome', () => {
 async function mountAndWait(props = mockedProps) {
   const wrapper = mount(
     <Provider store={store}>
-      <Welcome {...props} />
+      <UserWelcome {...props} />
     </Provider>,
   );
   await waitForComponentToPaint(wrapper);
@@ -194,7 +194,7 @@ test('should render an extension component if one is supplied', () => {
 
   render(
     <Provider store={store}>
-      <Welcome {...mockedProps} />
+      <UserWelcome {...mockedProps} />
     </Provider>,
   );
 

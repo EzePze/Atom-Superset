@@ -21,7 +21,7 @@ import { styled, SupersetClient, t, useTheme } from '@superset-ui/core';
 import SyntaxHighlighter from 'react-syntax-highlighter/dist/cjs/light';
 import sql from 'react-syntax-highlighter/dist/cjs/languages/hljs/sql';
 import github from 'react-syntax-highlighter/dist/cjs/styles/hljs/github';
-import { LoadingCards } from 'src/views/CRUD/welcome/Welcome';
+import { LoadingCards } from 'src/views/CRUD/welcome/UserWelcome';
 import { TableTab } from 'src/views/CRUD/types';
 import withToasts from 'src/components/MessageToasts/withToasts';
 import { AntdDropdown } from 'src/components';
@@ -107,7 +107,7 @@ const QueryContainer = styled.div`
     height: ${({ theme }) => theme.gridUnit * 40}px;
     border: none !important;
     background-color: ${({ theme }) =>
-      theme.colors.grayscale.light5} !important;
+    theme.colors.grayscale.light5} !important;
     overflow: hidden;
     padding: ${({ theme }) => theme.gridUnit * 4}px !important;
   }

@@ -236,6 +236,7 @@ export interface ListViewProps<T extends object = any> {
   highlightRowId?: number;
   showThumbnails?: boolean;
   emptyState?: EmptyStateProps;
+  pagination?: boolean;
 }
 
 function ListView<T extends object = any>({
@@ -258,6 +259,7 @@ function ListView<T extends object = any>({
   defaultViewMode = 'card',
   highlightRowId,
   emptyState,
+  pagination = true,
 }: ListViewProps<T>) {
   const {
     getTableProps,
@@ -319,32 +321,34 @@ function ListView<T extends object = any>({
   return (
     <ListViewStyles>
       <div data-test={className} className={`superset-list-view ${className}`}>
-        <div className="header">
-          <div className="controls">
-            {filterable && (
-              <FilterControls
-                ref={filterControlsRef}
-                filters={filters}
-                internalFilters={internalFilters}
-                updateFilterValue={applyFilterValue}
-              />
-            )}
+        {filterable && cardSortSelectOptions && (
+          <div className="header">
+            <div className="controls">
+              {filterable && (
+                <FilterControls
+                  ref={filterControlsRef}
+                  filters={filters}
+                  internalFilters={internalFilters}
+                  updateFilterValue={applyFilterValue}
+                />
+              )}
+            </div>
+            <div className="header-right">
+              {cardViewEnabled && (
+                <ViewModeToggle mode={viewMode} setMode={setViewMode} />
+              )}
+              {cardSortSelectOptions && (
+                <CardSortSelect
+                  initialSort={initialSort}
+                  onChange={fetchData}
+                  options={cardSortSelectOptions}
+                  pageIndex={pageIndex}
+                  pageSize={pageSize}
+                />
+              )}
+            </div>
           </div>
-          <div className="header-right">
-            {cardViewEnabled && (
-              <ViewModeToggle mode={viewMode} setMode={setViewMode} />
-            )}
-            {cardSortSelectOptions && (
-              <CardSortSelect
-                initialSort={initialSort}
-                onChange={fetchData}
-                options={cardSortSelectOptions}
-                pageIndex={pageIndex}
-                pageSize={pageSize}
-              />
-            )}
-          </div>
-        </div>
+        )}
         <div className={`body ${rows.length === 0 ? 'empty' : ''}`}>
           {bulkSelectEnabled && (
             <BulkSelectWrapper
@@ -435,7 +439,7 @@ function ListView<T extends object = any>({
         </div>
       </div>
 
-      {rows.length > 0 && (
+      {rows.length > 0 && pagination && (
         <div className="pagination-container">
           <Pagination
             totalPages={pageCount || 0}

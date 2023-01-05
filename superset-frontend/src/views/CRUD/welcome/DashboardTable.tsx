@@ -28,7 +28,7 @@ import {
   LocalStorageKeys,
   setItem,
 } from 'src/utils/localStorageHelpers';
-import { LoadingCards } from 'src/views/CRUD/welcome/Welcome';
+import { LoadingCards } from 'src/views/CRUD/welcome/UserWelcome';
 import {
   CardContainer,
   createErrorHandler,
@@ -54,10 +54,10 @@ function DashboardTable({
   otherTabTitle,
 }: DashboardTableProps) {
   const history = useHistory();
-  const defaultTab = getItem(
+  const defaultTab = user?.userId ? getItem(
     LocalStorageKeys.homepage_dashboard_filter,
     TableTab.Other,
-  );
+  ) : TableTab.Mine;
 
   const filteredOtherTabData = filter(
     otherTabData,
@@ -110,7 +110,7 @@ function DashboardTable({
     });
 
   useEffect(() => {
-    if (loaded || activeTab === TableTab.Favorite) {
+    if (user?.userId && (loaded || activeTab === TableTab.Favorite)) {
       getData(activeTab);
     }
     setLoaded(true);
@@ -147,22 +147,24 @@ function DashboardTable({
 
   const menuTabs = [
     {
-      name: TableTab.Favorite,
-      label: t('Favorite'),
-      onClick: () => {
-        setActiveTab(TableTab.Favorite);
-        setItem(LocalStorageKeys.homepage_dashboard_filter, TableTab.Favorite);
-      },
-    },
-    {
       name: TableTab.Mine,
-      label: t('Mine'),
+      label: user?.userId ? t('Mine') : t('All'),
       onClick: () => {
         setActiveTab(TableTab.Mine);
         setItem(LocalStorageKeys.homepage_dashboard_filter, TableTab.Mine);
       },
     },
   ];
+  if (user?.userId) {
+    menuTabs.push({
+      name: TableTab.Favorite,
+      label: t('Favorite'),
+      onClick: () => {
+        setActiveTab(TableTab.Favorite);
+        setItem(LocalStorageKeys.homepage_dashboard_filter, TableTab.Favorite);
+      },
+    });
+  }
 
   if (otherTabData) {
     menuTabs.push({
@@ -201,8 +203,8 @@ function DashboardTable({
               const target =
                 activeTab === TableTab.Favorite
                   ? `/dashboard/list/?filters=(favorite:(label:${t(
-                      'Yes',
-                    )},value:!t))`
+                    'Yes',
+                  )},value:!t))`
                   : '/dashboard/list/';
               history.push(target);
             },

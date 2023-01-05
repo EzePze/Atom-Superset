@@ -56,6 +56,16 @@ import AddDatasetModal from '../CRUD/data/dataset/AddDatasetModal';
 
 const extensionsRegistry = getExtensionsRegistry();
 
+const recentQueriesStyles = (theme: SupersetTheme) => css`
+  margin-right: ${theme.gridUnit * 12}px;
+  text-decoration: none;
+  color: ${theme.colors.grayscale.dark1};
+`;
+
+const buildQueryStyles = (theme: SupersetTheme) => css`
+  margin-right: ${theme.gridUnit * 6}px;
+`;
+
 const versionInfoStyles = (theme: SupersetTheme) => css`
   padding: ${theme.gridUnit * 1.5}px ${theme.gridUnit * 4}px
     ${theme.gridUnit * 4}px ${theme.gridUnit * 7}px;
@@ -99,11 +109,9 @@ const StyledAnchor = styled.a`
   padding-left: ${({ theme }) => theme.gridUnit}px;
 `;
 
-
 const tagStyles = (theme: SupersetTheme) => css`
   color: ${theme.colors.grayscale.light5};
 `;
-
 
 const styledChildMenu = (theme: SupersetTheme) => css`
   &:hover {
@@ -389,71 +397,12 @@ const RightMenu = ({
         onOpenChange={onMenuOpen}
       >
         {RightMenuExtension && <RightMenuExtension />}
-        {!navbarRight.user_is_anonymous && showActionDropdown && (
-          <SubMenu
-            data-test="new-dropdown"
-            title={
-              <StyledI data-test="new-dropdown-icon" className="fa fa-plus" />
-            }
-            icon={<Icons.TriangleDown />}
-          >
-            {dropdownItems?.map?.(menu => {
-              const canShowChild = menu.childs?.some(
-                item => typeof item === 'object' && !!item.perm,
-              );
-              if (menu.childs) {
-                if (canShowChild) {
-                  return (
-                    <SubMenu
-                      key={`sub2_${menu.label}`}
-                      className="data-menu"
-                      title={menuIconAndLabel(menu)}
-                    >
-                      {menu?.childs?.map?.((item, idx) =>
-                        typeof item !== 'string' && item.name && item.perm ? (
-                          <Fragment key={item.name}>
-                            {idx === 3 && <Menu.Divider />}
-                            {buildMenuItem(item)}
-                          </Fragment>
-                        ) : null,
-                      )}
-                    </SubMenu>
-                  );
-                }
-                if (!menu.url) {
-                  return null;
-                }
-              }
-              return (
-                findPermission(
-                  menu.perm as string,
-                  menu.view as string,
-                  roles,
-                ) && (
-                  <Menu.Item key={menu.label}>
-                    {isFrontendRoute(menu.url) ? (
-                      <Link to={menu.url || ''}>
-                        <i
-                          data-test={`menu-item-${menu.label}`}
-                          className={`fa ${menu.icon}`}
-                        />{' '}
-                        {menu.label}
-                      </Link>
-                    ) : (
-                      <a href={menu.url}>
-                        <i
-                          data-test={`menu-item-${menu.label}`}
-                          className={`fa ${menu.icon}`}
-                        />{' '}
-                        {menu.label}
-                      </a>
-                    )}
-                  </Menu.Item>
-                )
-              );
-            })}
-          </SubMenu>
-        )}
+        <a css={buildQueryStyles} href="/superset/sqllab/">
+          Build a Query
+        </a>
+        <a css={recentQueriesStyles} href="/superset/sqllab/history/">
+          Recent Queries
+        </a>
         <SubMenu
           title={t('Settings')}
           icon={<Icons.TriangleDown iconSize="xl" />}
@@ -541,17 +490,6 @@ const RightMenu = ({
           />
         )}
       </Menu>
-      {navbarRight.documentation_url && (
-        <StyledAnchor
-          href={navbarRight.documentation_url}
-          target="_blank"
-          rel="noreferrer"
-          title={t('Documentation')}
-        >
-          <i className="fa fa-question" />
-          &nbsp;
-        </StyledAnchor>
-      )}
       {navbarRight.bug_report_url && (
         <StyledAnchor
           href={navbarRight.bug_report_url}
@@ -562,9 +500,7 @@ const RightMenu = ({
           <i className="fa fa-bug" />
         </StyledAnchor>
       )}
-      {navbarRight.user_is_anonymous && (
-        <WalletConnector />
-      )}
+      <WalletConnector username={navbarRight.user_profile_url?.slice(18)} />
       {/* {navbarRight.user_is_anonymous && (
         <StyledAnchor href={navbarRight.user_login_url}>
           <i className="fa fa-fw fa-sign-in" />

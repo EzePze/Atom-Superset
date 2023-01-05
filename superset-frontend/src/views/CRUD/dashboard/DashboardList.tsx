@@ -307,13 +307,14 @@ function DashboardList(props: DashboardListProps) {
             original: { created_by: createdBy },
           },
         }: any) =>
-          enableBroadUserAccess ? (
+          createdBy &&
+          (enableBroadUserAccess ? (
             <a href={`/superset/profile/${createdBy.username}`}>
               {createdBy.username}
             </a>
           ) : (
             <>{createdBy.username}</>
-          ),
+          )),
         Header: t('Created by'),
         accessor: 'created_by',
         disableSortBy: true,

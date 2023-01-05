@@ -24,7 +24,7 @@ import { Link } from 'react-router-dom';
 import ListViewCard from 'src/components/ListViewCard';
 import SubMenu from 'src/views/components/SubMenu';
 import { Dashboard, SavedQueryObject, TableTab } from 'src/views/CRUD/types';
-import { ActivityData, LoadingCards } from 'src/views/CRUD/welcome/Welcome';
+import { ActivityData, LoadingCards } from 'src/views/CRUD/welcome/UserWelcome';
 import {
   CardContainer,
   CardStyles,
@@ -209,9 +209,9 @@ export default function ActivityTable({
     <Styles>
       <SubMenu activeChild={activeChild} tabs={tabs} />
       {activityData[activeChild]?.length > 0 ||
-      (activeChild === TableTab.Edited &&
-        editedObjs &&
-        editedObjs.length > 0) ? (
+        (activeChild === TableTab.Edited &&
+          editedObjs &&
+          editedObjs.length > 0) ? (
         <CardContainer className="recentCards">
           {renderActivity()}
         </CardContainer>
