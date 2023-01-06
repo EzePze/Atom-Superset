@@ -17,7 +17,6 @@
  * under the License.
  */
 import React, { useEffect, useMemo, useState } from 'react';
-import PublicWelcome from 'src/views/CRUD/welcome/PublicWelcome';
 import {
   getExtensionsRegistry,
   JsonObject,

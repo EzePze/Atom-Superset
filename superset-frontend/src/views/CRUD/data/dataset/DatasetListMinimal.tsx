@@ -16,59 +16,23 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { SupersetClient, t, styled } from '@superset-ui/core';
-import React, {
-  FunctionComponent,
-  useState,
-  useMemo,
-  useCallback,
-  useEffect,
-} from 'react';
-import rison from 'rison';
+import { t, styled } from '@superset-ui/core';
+import React, { FunctionComponent, useMemo, useCallback } from 'react';
 import { useHistory, useLocation } from 'react-router-dom';
-import {
-  createFetchRelated,
-  createFetchDistinct,
-  createErrorHandler,
-} from 'src/views/CRUD/utils';
-import { getItem, LocalStorageKeys } from 'src/utils/localStorageHelpers';
-import { ColumnObject } from 'src/views/CRUD/data/dataset/types';
 import { useListViewResource } from 'src/views/CRUD/hooks';
-import ConfirmStatusChange from 'src/components/ConfirmStatusChange';
-import { DatasourceModal } from 'src/components/Datasource';
-import DeleteModal from 'src/components/DeleteModal';
-import handleResourceExport from 'src/utils/export';
-import ListView, {
-  ListViewProps,
-  Filters,
-  FilterOperator,
-} from 'src/components/ListView';
-import Loading from 'src/components/Loading';
-import SubMenu, {
-  SubMenuProps,
-  ButtonProps,
-} from 'src/views/components/SubMenu';
+import ListView from 'src/components/ListView';
+import { SubMenuProps, ButtonProps } from 'src/views/components/SubMenu';
 import Owner from 'src/types/Owner';
 import withToasts from 'src/components/MessageToasts/withToasts';
 import { Tooltip } from 'src/components/Tooltip';
 import Icons from 'src/components/Icons';
-import FacePile from 'src/components/FacePile';
 import CertifiedBadge from 'src/components/CertifiedBadge';
 import InfoTooltip from 'src/components/InfoTooltip';
-import ImportModelsModal from 'src/components/ImportModal/index';
 import { isFeatureEnabled, FeatureFlag } from 'src/featureFlags';
 import WarningIconWithTooltip from 'src/components/WarningIconWithTooltip';
-import { isUserAdmin } from 'src/dashboard/util/permissionUtils';
 import { GenericLink } from 'src/components/GenericLink/GenericLink';
-import AddDatasetModal from './AddDatasetModal';
 
-import {
-  PAGE_SIZE,
-  SORT_BY,
-  PASSWORDS_NEEDED_MESSAGE,
-  CONFIRM_OVERWRITE_MESSAGE,
-} from './constants';
-import DuplicateDatasetModal from './DuplicateDatasetModal';
+import { SORT_BY } from './constants';
 
 const MINIMAL_PAGE_SIZE = 10;
 
@@ -78,29 +42,6 @@ const FlexRowContainer = styled.div`
 
   svg {
     margin-right: ${({ theme }) => theme.gridUnit}px;
-  }
-`;
-
-const Actions = styled.div`
-  color: ${({ theme }) => theme.colors.grayscale.base};
-
-  .disabled {
-    svg,
-    i {
-      &:hover {
-        path {
-          fill: ${({ theme }) => theme.colors.grayscale.light1};
-        }
-      }
-    }
-    color: ${({ theme }) => theme.colors.grayscale.light1};
-    .ant-menu-item:hover {
-      color: ${({ theme }) => theme.colors.grayscale.light1};
-      cursor: default;
-    }
-    &::after {
-      color: ${({ theme }) => theme.colors.grayscale.light1};
-    }
   }
 `;
 
@@ -121,11 +62,6 @@ type Dataset = {
   table_name: string;
 };
 
-interface VirtualDataset extends Dataset {
-  extra: Record<string, any>;
-  sql: string;
-}
-
 interface DatasetListProps {
   addDangerToast: (msg: string) => void;
   addSuccessToast: (msg: string) => void;
@@ -138,8 +74,6 @@ interface DatasetListProps {
 
 const DatasetListMinimal: FunctionComponent<DatasetListProps> = ({
   addDangerToast,
-  addSuccessToast,
-  user,
 }) => {
   const {
     state: {
@@ -151,11 +85,7 @@ const DatasetListMinimal: FunctionComponent<DatasetListProps> = ({
     hasPerm,
     fetchData,
     toggleBulkSelect,
-    refreshData,
   } = useListViewResource<Dataset>('dataset', t('dataset'), addDangerToast);
-
-  const [datasetCurrentlyDuplicating, setDatasetCurrentlyDuplicating] =
-    useState<VirtualDataset | null>(null);
 
   const canEdit = hasPerm('can_write');
   const canDelete = hasPerm('can_write');
@@ -165,70 +95,6 @@ const DatasetListMinimal: FunctionComponent<DatasetListProps> = ({
     hasPerm('can_export') && isFeatureEnabled(FeatureFlag.VERSIONED_EXPORT);
 
   const initialSort = SORT_BY;
-
-  const openDatasetEditModal = useCallback(
-    ({ id }: Dataset) => {
-      SupersetClient.get({
-        endpoint: `/api/v1/dataset/${id}`,
-      })
-        .then(({ json = {} }) => {
-          const addCertificationFields = json.result.columns.map(
-            (column: ColumnObject) => {
-              const {
-                certification: { details = '', certified_by = '' } = {},
-              } = JSON.parse(column.extra || '{}') || {};
-              return {
-                ...column,
-                certification_details: details || '',
-                certified_by: certified_by || '',
-                is_certified: details || certified_by,
-              };
-            },
-          );
-          // eslint-disable-next-line no-param-reassign
-          json.result.columns = [...addCertificationFields];
-          setDatasetCurrentlyEditing(json.result);
-        })
-        .catch(() => {
-          addDangerToast(
-            t('An error occurred while fetching dataset related data'),
-          );
-        });
-    },
-    [addDangerToast],
-  );
-
-  const openDatasetDeleteModal = (dataset: Dataset) =>
-    SupersetClient.get({
-      endpoint: `/api/v1/dataset/${dataset.id}/related_objects`,
-    })
-      .then(({ json = {} }) => {
-        setDatasetCurrentlyDeleting({
-          ...dataset,
-          chart_count: json.charts.count,
-          dashboard_count: json.dashboards.count,
-        });
-      })
-      .catch(
-        createErrorHandler(errMsg =>
-          t(
-            'An error occurred while fetching dataset related data: %s',
-            errMsg,
-          ),
-        ),
-      );
-
-  const openDatasetDuplicateModal = (dataset: VirtualDataset) => {
-    setDatasetCurrentlyDuplicating(dataset);
-  };
-
-  const handleBulkDatasetExport = (datasetsToExport: Dataset[]) => {
-    const ids = datasetsToExport.map(({ id }) => id);
-    handleResourceExport('dataset', ids, () => {
-      setPreparingExport(false);
-    });
-    setPreparingExport(true);
-  };
 
   const columns = useMemo(
     () => [
@@ -352,102 +218,8 @@ const DatasetListMinimal: FunctionComponent<DatasetListProps> = ({
         hidden: true,
         disableSortBy: true,
       },
-      {
-        Cell: ({ row: { original } }: any) => {
-          // Verify owner or isAdmin
-          const allowEdit =
-            original.owners.map((o: Owner) => o.id).includes(user.userId) ||
-            isUserAdmin(user);
-
-          const handleEdit = () => openDatasetEditModal(original);
-          const handleDelete = () => openDatasetDeleteModal(original);
-          const handleExport = () => handleBulkDatasetExport([original]);
-          const handleDuplicate = () => openDatasetDuplicateModal(original);
-          if (!canEdit && !canDelete && !canExport && !canDuplicate) {
-            return null;
-          }
-          return (
-            <Actions className="actions">
-              {canDelete && (
-                <Tooltip
-                  id="delete-action-tooltip"
-                  title={t('Delete')}
-                  placement="bottom"
-                >
-                  <span
-                    role="button"
-                    tabIndex={0}
-                    className="action-button"
-                    onClick={handleDelete}
-                  >
-                    <Icons.Trash />
-                  </span>
-                </Tooltip>
-              )}
-              {canExport && (
-                <Tooltip
-                  id="export-action-tooltip"
-                  title={t('Export')}
-                  placement="bottom"
-                >
-                  <span
-                    role="button"
-                    tabIndex={0}
-                    className="action-button"
-                    onClick={handleExport}
-                  >
-                    <Icons.Share />
-                  </span>
-                </Tooltip>
-              )}
-              {canEdit && (
-                <Tooltip
-                  id="edit-action-tooltip"
-                  title={
-                    allowEdit
-                      ? t('Edit')
-                      : t(
-                          'You must be a dataset owner in order to edit. Please reach out to a dataset owner to request modifications or edit access.',
-                        )
-                  }
-                  placement="bottomRight"
-                >
-                  <span
-                    role="button"
-                    tabIndex={0}
-                    className={allowEdit ? 'action-button' : 'disabled'}
-                    onClick={allowEdit ? handleEdit : undefined}
-                  >
-                    <Icons.EditAlt />
-                  </span>
-                </Tooltip>
-              )}
-              {canDuplicate && original.kind === 'virtual' && (
-                <Tooltip
-                  id="duplicate-action-tooltop"
-                  title={t('Duplicate')}
-                  placement="bottom"
-                >
-                  <span
-                    role="button"
-                    tabIndex={0}
-                    className="action-button"
-                    onClick={handleDuplicate}
-                  >
-                    <Icons.Copy />
-                  </span>
-                </Tooltip>
-              )}
-            </Actions>
-          );
-        },
-        Header: t('Actions'),
-        id: 'actions',
-        hidden: !canEdit && !canDelete && !canDuplicate,
-        disableSortBy: true,
-      },
     ],
-    [canEdit, canDelete, canExport, openDatasetEditModal, canDuplicate],
+    [canEdit, canDelete, canExport, canDuplicate],
   );
 
   const menuData: SubMenuProps = {
@@ -474,11 +246,6 @@ const DatasetListMinimal: FunctionComponent<DatasetListProps> = ({
     history.replace(`${location.pathname}${location.search}${CREATE_HASH}`);
   }, [history, location.pathname, location.search]);
 
-  //  Remove #create hash
-  const closeDatasetAddModal = useCallback(() => {
-    history.replace(`${location.pathname}${location.search}`);
-  }, [history, location.pathname, location.search]);
-
   if (canCreate) {
     buttonArr.push({
       name: (
@@ -490,88 +257,9 @@ const DatasetListMinimal: FunctionComponent<DatasetListProps> = ({
       buttonStyle: 'primary',
       ghost: true,
     });
-
-    if (isFeatureEnabled(FeatureFlag.VERSIONED_EXPORT)) {
-      buttonArr.push({
-        name: (
-          <Tooltip
-            id="import-tooltip"
-            title={t('Import datasets')}
-            placement="bottomRight"
-          >
-            <Icons.Import data-test="import-button" />
-          </Tooltip>
-        ),
-        buttonStyle: 'link',
-        onClick: openDatasetImportModal,
-      });
-    }
   }
 
   menuData.buttons = buttonArr;
-
-  const closeDatasetDuplicateModal = () => {
-    setDatasetCurrentlyDuplicating(null);
-  };
-
-  const handleDatasetDelete = ({ id, table_name: tableName }: Dataset) => {
-    SupersetClient.delete({
-      endpoint: `/api/v1/dataset/${id}`,
-    }).then(
-      () => {
-        refreshData();
-        setDatasetCurrentlyDeleting(null);
-        addSuccessToast(t('Deleted: %s', tableName));
-      },
-      createErrorHandler(errMsg =>
-        addDangerToast(
-          t('There was an issue deleting %s: %s', tableName, errMsg),
-        ),
-      ),
-    );
-  };
-
-  const handleBulkDatasetDelete = (datasetsToDelete: Dataset[]) => {
-    SupersetClient.delete({
-      endpoint: `/api/v1/dataset/?q=${rison.encode(
-        datasetsToDelete.map(({ id }) => id),
-      )}`,
-    }).then(
-      ({ json = {} }) => {
-        refreshData();
-        addSuccessToast(json.message);
-      },
-      createErrorHandler(errMsg =>
-        addDangerToast(
-          t('There was an issue deleting the selected datasets: %s', errMsg),
-        ),
-      ),
-    );
-  };
-
-  const handleDatasetDuplicate = (newDatasetName: string) => {
-    if (datasetCurrentlyDuplicating === null) {
-      addDangerToast(t('There was an issue duplicating the dataset.'));
-    }
-
-    SupersetClient.post({
-      endpoint: `/api/v1/dataset/duplicate`,
-      jsonPayload: {
-        base_model_id: datasetCurrentlyDuplicating?.id,
-        table_name: newDatasetName,
-      },
-    }).then(
-      () => {
-        setDatasetCurrentlyDuplicating(null);
-        refreshData();
-      },
-      createErrorHandler(errMsg =>
-        addDangerToast(
-          t('There was an issue duplicating the selected datasets: %s', errMsg),
-        ),
-      ),
-    );
-  };
 
   return (
     <>

@@ -17,41 +17,27 @@
  * under the License.
  */
 import React, { useEffect, useMemo, useState } from 'react';
-import {
-  getExtensionsRegistry,
-  JsonObject,
-  styled,
-  t,
-} from '@superset-ui/core';
+import { getExtensionsRegistry, styled, t } from '@superset-ui/core';
 import Collapse from 'src/components/Collapse';
 import { User } from 'src/types/bootstrapTypes';
-import { reject } from 'lodash';
 import {
   getItem,
-  dangerouslyGetItemDoNotUse,
   setItem,
-  dangerouslySetItemDoNotUse,
   LocalStorageKeys,
 } from 'src/utils/localStorageHelpers';
 import ListViewCard from 'src/components/ListViewCard';
 import withToasts from 'src/components/MessageToasts/withToasts';
 import {
-  createErrorHandler,
-  getRecentAcitivtyObjs,
   mq,
   CardContainer,
-  getUserOwnedObjects,
   loadingCardCount,
   getResourceByModifyTime,
 } from 'src/views/CRUD/utils';
 import { FeatureFlag, isFeatureEnabled } from 'src/featureFlags';
 import { AntdSwitch } from 'src/components';
 import getBootstrapData from 'src/utils/getBootstrapData';
-import { TableTab } from 'src/views/CRUD/types';
 import { WelcomePageLastTab } from './types';
-import ActivityTable from './ActivityTable';
 import ChartTable from './ChartTable';
-import SavedQueries from './SavedQueries';
 import DashboardTable from './DashboardTable';
 import DatasetListMinimal from '../data/dataset/DatasetListMinimal';
 
@@ -155,24 +141,13 @@ export const LoadingCards = ({ cover }: LoadingProps) => (
   </CardContainer>
 );
 
-function PublicWelcome({ user, addDangerToast }: WelcomeProps) {
-  // const userid = user.userId;
-  // const id = userid!.toString(); // confident that user is not a guest user
-  // const recent = `/superset/recent_activity/${user.userId}/?limit=6`;
-  const [activeChild, setActiveChild] = useState('Loading');
-  // const userKey = dangerouslyGetItemDoNotUse(id, null);
+function PublicWelcome({ user }: WelcomeProps) {
   const defaultChecked = false;
-  // if (isFeatureEnabled(FeatureFlag.THUMBNAILS)) {
-  //   defaultChecked =
-  //     userKey?.thumbnails === undefined ? true : userKey?.thumbnails;
-  // }
   const [checked, setChecked] = useState(defaultChecked);
   const [chartData, setChartData] = useState<Array<object> | null>(null);
-  // const [queryData, setQueryData] = useState<Array<object> | null>(null);
   const [dashboardData, setDashboardData] = useState<Array<object> | null>(
     null,
   );
-  const [loadedCount, setLoadedCount] = useState(0);
 
   const collapseState = getItem(LocalStorageKeys.homepage_collapse_state, []);
   const [activeState, setActiveState] = useState<Array<string>>(collapseState);
@@ -216,43 +191,17 @@ function PublicWelcome({ user, addDangerToast }: WelcomeProps) {
     if (!otherTabFilters) {
       return;
     }
-    const activeTab = getItem(LocalStorageKeys.homepage_activity_filter, null);
     setActiveState(collapseState.length > 0 ? collapseState : DEFAULT_TAB_ARR);
 
     // Sets other activity data in parallel with recents api call
 
     getResourceByModifyTime('dashboard').then(r => {
       setDashboardData(r);
-      setLoadedCount(loadedCount => loadedCount + 1);
     });
 
     getResourceByModifyTime('chart').then(r => {
       setChartData(r);
-      setLoadedCount(loadedCount => loadedCount + 1);
     });
-
-    // getUserOwnedObjects(id, 'dashboard')
-    //   .then(r => {
-    //     setDashboardData(r);
-    //     setLoadedCount(loadedCount => loadedCount + 1);
-    //   })
-    //   .catch((err: unknown) => {
-    //     setDashboardData([]);
-    //     setLoadedCount(loadedCount => loadedCount + 1);
-    //     addDangerToast(
-    //       t('There was an issue fetching your dashboards: %s', err),
-    //     );
-    //   });
-    // getUserOwnedObjects(id, 'chart')
-    //   .then(r => {
-    //     setChartData(r);
-    //     setLoadedCount(loadedCount => loadedCount + 1);
-    //   })
-    //   .catch((err: unknown) => {
-    //     setChartData([]);
-    //     setLoadedCount(loadedCount => loadedCount + 1);
-    //     addDangerToast(t('There was an issue fetching your chart: %s', err));
-    //   });
   }, [otherTabFilters]);
 
   const handleToggle = () => {

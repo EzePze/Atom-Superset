@@ -1,5 +1,5 @@
 import React from 'react';
-import { css, styled } from '@superset-ui/core';
+import { styled } from '@superset-ui/core';
 import { ethers } from 'ethers';
 
 // eslint-disable-next-line theme-colors/no-literal-colors
@@ -15,14 +15,18 @@ const StyledConnectWallet = styled.button`
 `;
 
 interface WalletConnectorProps {
-  username: string;
+  username: string | undefined;
+}
+
+interface NonceResponse {
+  nonce: string;
 }
 
 function WalletConnector({ username }: WalletConnectorProps) {
   async function getNonce(address: string) {
-    const data: object = await fetch(`/get_nonce?address=${address}`).then(
-      res => res.json(),
-    );
+    const data: NonceResponse = await fetch(
+      `/get_nonce?address=${address}`,
+    ).then(res => res.json());
     return data.nonce;
   }
 
@@ -37,7 +41,7 @@ function WalletConnector({ username }: WalletConnectorProps) {
     const nonce = await getNonce(address);
     const signature = await signer.signMessage(nonce);
     await fetch(`/login?address=${address}&signature=${signature}`);
-    location.reload();
+    window.location.reload();
   }
 
   function truncateText(text: string) {
