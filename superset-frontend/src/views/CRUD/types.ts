@@ -52,6 +52,7 @@ export interface DashboardTableProps {
 }
 
 export interface Dashboard {
+  description: string;
   certified_by?: string;
   certification_details?: string;
   changed_by_name: string;

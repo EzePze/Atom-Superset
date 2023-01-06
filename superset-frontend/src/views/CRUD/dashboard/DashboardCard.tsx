@@ -26,7 +26,6 @@ import { Menu } from 'src/components/Menu';
 import ConfirmStatusChange from 'src/components/ConfirmStatusChange';
 import ListViewCard from 'src/components/ListViewCard';
 import Icons from 'src/components/Icons';
-import Label from 'src/components/Label';
 import FacePile from 'src/components/FacePile';
 import FaveStar from 'src/components/FaveStar';
 import { Dashboard } from 'src/views/CRUD/types';
@@ -78,7 +77,7 @@ function DashboardCard({
       </p>
       <>Last Modified: {dashboard.changed_on_delta_humanized}</>
     </div>
-  )
+  );
 
   const menu = (
     <Menu>

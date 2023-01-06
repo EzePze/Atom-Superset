@@ -107,7 +107,7 @@ const QueryContainer = styled.div`
     height: ${({ theme }) => theme.gridUnit * 40}px;
     border: none !important;
     background-color: ${({ theme }) =>
-    theme.colors.grayscale.light5} !important;
+      theme.colors.grayscale.light5} !important;
     overflow: hidden;
     padding: ${({ theme }) => theme.gridUnit * 4}px !important;
   }

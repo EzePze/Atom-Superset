@@ -19,21 +19,15 @@
 import {
   ensureIsArray,
   getChartMetadataRegistry,
-  JsonResponse,
   styled,
   SupersetClient,
   t,
 } from '@superset-ui/core';
 import React, { useState, useMemo, useCallback } from 'react';
 import rison from 'rison';
-import { uniqBy } from 'lodash';
 import moment from 'moment';
 import { FeatureFlag, isFeatureEnabled } from 'src/featureFlags';
-import {
-  createErrorHandler,
-  createFetchRelated,
-  handleChartDelete,
-} from 'src/views/CRUD/utils';
+import { createErrorHandler, handleChartDelete } from 'src/views/CRUD/utils';
 import {
   useChartEditModal,
   useFavoriteStatus,
@@ -49,7 +43,6 @@ import ListView, {
   FilterOperator,
   Filters,
   ListViewProps,
-  SelectOption,
 } from 'src/components/ListView';
 import CrossLinks from 'src/components/ListView/CrossLinks';
 import Loading from 'src/components/Loading';
@@ -60,13 +53,11 @@ import ImportModelsModal from 'src/components/ImportModal/index';
 import Chart from 'src/types/Chart';
 import { Tooltip } from 'src/components/Tooltip';
 import Icons from 'src/components/Icons';
-import { nativeFilterGate } from 'src/dashboard/components/nativeFilters/utils';
 import setupPlugins from 'src/setup/setupPlugins';
 import InfoTooltip from 'src/components/InfoTooltip';
 import CertifiedBadge from 'src/components/CertifiedBadge';
 import { GenericLink } from 'src/components/GenericLink/GenericLink';
 import { bootstrapData } from 'src/preamble';
-import Owner from 'src/types/Owner';
 import ChartCard from './ChartCard';
 
 const FlexRowContainer = styled.div`
@@ -101,42 +92,6 @@ const CONFIRM_OVERWRITE_MESSAGE = t(
 
 setupPlugins();
 const registry = getChartMetadataRegistry();
-
-const createFetchDatasets = async (
-  filterValue = '',
-  page: number,
-  pageSize: number,
-) => {
-  // add filters if filterValue
-  const filters = filterValue
-    ? { filters: [{ col: 'table_name', opr: 'sw', value: filterValue }] }
-    : {};
-  const queryParams = rison.encode({
-    columns: ['datasource_name', 'datasource_id'],
-    keys: ['none'],
-    order_column: 'table_name',
-    order_direction: 'asc',
-    page,
-    page_size: pageSize,
-    ...filters,
-  });
-
-  const { json = {} } = await SupersetClient.get({
-    endpoint: `/api/v1/dataset/?q=${queryParams}`,
-  });
-
-  const datasets = json?.result?.map(
-    ({ table_name: tableName, id }: { table_name: string; id: number }) => ({
-      label: tableName,
-      value: id,
-    }),
-  );
-
-  return {
-    data: uniqBy<SelectOption>(datasets, 'value'),
-    totalCount: json?.count,
-  };
-};
 
 interface ChartListProps {
   addDangerToast: (msg: string) => void;
@@ -232,10 +187,6 @@ function ChartList(props: ChartListProps) {
     });
     setPreparingExport(true);
   };
-  const changedByName = (lastSavedBy: Owner) =>
-    lastSavedBy?.first_name
-      ? `${lastSavedBy?.first_name} ${lastSavedBy?.last_name}`
-      : null;
 
   function handleBulkChartDelete(chartsToDelete: Chart[]) {
     SupersetClient.delete({
@@ -254,56 +205,6 @@ function ChartList(props: ChartListProps) {
       ),
     );
   }
-  const fetchDashboards = async (
-    filterValue = '',
-    page: number,
-    pageSize: number,
-  ) => {
-    // add filters if filterValue
-    const filters = filterValue
-      ? {
-          filters: [
-            {
-              col: 'dashboards',
-              opr: FilterOperator.relationManyMany,
-              value: filterValue,
-            },
-          ],
-        }
-      : {};
-    const queryParams = rison.encode({
-      columns: ['dashboard_title', 'id'],
-      keys: ['none'],
-      order_column: 'dashboard_title',
-      order_direction: 'asc',
-      page,
-      page_size: pageSize,
-      ...filters,
-    });
-    const response: void | JsonResponse = await SupersetClient.get({
-      endpoint: !filterValue
-        ? `/api/v1/dashboard/?q=${queryParams}`
-        : `/api/v1/chart/?q=${queryParams}`,
-    }).catch(() =>
-      addDangerToast(t('An error occurred while fetching dashboards')),
-    );
-    const dashboards = response?.json?.result?.map(
-      ({
-        dashboard_title: dashboardTitle,
-        id,
-      }: {
-        dashboard_title: string;
-        id: number;
-      }) => ({
-        label: dashboardTitle,
-        value: id,
-      }),
-    );
-    return {
-      data: uniqBy<SelectOption>(dashboards, 'value'),
-      totalCount: response?.json?.count,
-    };
-  };
 
   const columns = useMemo(
     () => [

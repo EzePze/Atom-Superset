@@ -54,10 +54,9 @@ function DashboardTable({
   otherTabTitle,
 }: DashboardTableProps) {
   const history = useHistory();
-  const defaultTab = user?.userId ? getItem(
-    LocalStorageKeys.homepage_dashboard_filter,
-    TableTab.Other,
-  ) : TableTab.Mine;
+  const defaultTab = user?.userId
+    ? getItem(LocalStorageKeys.homepage_dashboard_filter, TableTab.Other)
+    : TableTab.Mine;
 
   const filteredOtherTabData = filter(
     otherTabData,
@@ -203,8 +202,8 @@ function DashboardTable({
               const target =
                 activeTab === TableTab.Favorite
                   ? `/dashboard/list/?filters=(favorite:(label:${t(
-                    'Yes',
-                  )},value:!t))`
+                      'Yes',
+                    )},value:!t))`
                   : '/dashboard/list/';
               history.push(target);
             },

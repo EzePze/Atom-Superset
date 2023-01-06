@@ -1,5 +1,6 @@
 import React from 'react';
 import { User } from 'src/types/bootstrapTypes';
+import withToasts from 'src/components/MessageToasts/withToasts';
 import UserWelcome from './UserWelcome';
 import PublicWelcome from './PublicWelcome';
 
@@ -8,7 +9,7 @@ interface WelcomeProps {
   addDangerToast: (arg0: string) => void;
 }
 
-export default function Welcome({ user, addDangerToast }: WelcomeProps) {
+function Welcome({ user, addDangerToast }: WelcomeProps) {
   return (
     <div>
       {user?.userId ? (
@@ -19,3 +20,5 @@ export default function Welcome({ user, addDangerToast }: WelcomeProps) {
     </div>
   );
 }
+
+export default withToasts(Welcome);

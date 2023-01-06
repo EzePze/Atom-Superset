@@ -144,7 +144,7 @@ export default function ChartCard({
       </p>
       <>Last Modified: {chart.changed_on_delta_humanized}</>
     </div>
-  )
+  );
 
   return (
     <CardStyles

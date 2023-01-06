@@ -209,9 +209,9 @@ export default function ActivityTable({
     <Styles>
       <SubMenu activeChild={activeChild} tabs={tabs} />
       {activityData[activeChild]?.length > 0 ||
-        (activeChild === TableTab.Edited &&
-          editedObjs &&
-          editedObjs.length > 0) ? (
+      (activeChild === TableTab.Edited &&
+        editedObjs &&
+        editedObjs.length > 0) ? (
         <CardContainer className="recentCards">
           {renderActivity()}
         </CardContainer>

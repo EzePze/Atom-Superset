@@ -16,7 +16,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import rison from 'rison';
 import { useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -33,7 +33,6 @@ import {
   useTheme,
 } from '@superset-ui/core';
 import { MainNav as Menu } from 'src/components/Menu';
-import { Tooltip } from 'src/components/Tooltip';
 import Icons from 'src/components/Icons';
 import Label from 'src/components/Label';
 import WalletConnector from 'src/components/WalletConnector';
@@ -73,18 +72,6 @@ const versionInfoStyles = (theme: SupersetTheme) => css`
   font-size: ${theme.typography.sizes.xs}px;
   white-space: nowrap;
 `;
-const StyledI = styled.div`
-  color: ${({ theme }) => theme.colors.primary.dark1};
-`;
-
-const styledDisabled = (theme: SupersetTheme) => css`
-  color: ${theme.colors.grayscale.base};
-  backgroundColor: ${theme.colors.grayscale.light2}};
-  .ant-menu-item:hover {
-    color: ${theme.colors.grayscale.base};
-    cursor: default;
-  }
-`;
 
 const StyledDiv = styled.div<{ align: string }>`
   display: flex;
@@ -111,13 +98,6 @@ const StyledAnchor = styled.a`
 
 const tagStyles = (theme: SupersetTheme) => css`
   color: ${theme.colors.grayscale.light5};
-`;
-
-const styledChildMenu = (theme: SupersetTheme) => css`
-  &:hover {
-    color: ${theme.colors.primary.base} !important;
-    cursor: pointer !important;
-  }
 `;
 
 const { SubMenu } = Menu;
@@ -156,9 +136,6 @@ const RightMenu = ({
   const [showDatabaseModal, setShowDatabaseModal] = useState<boolean>(false);
   const [showDatasetModal, setShowDatasetModal] = useState<boolean>(false);
   const [engine, setEngine] = useState<string>('');
-  const canSql = findPermission('can_sqllab', 'Superset', roles);
-  const canDashboard = findPermission('can_write', 'Dashboard', roles);
-  const canChart = findPermission('can_write', 'Chart', roles);
   const canDatabase = findPermission('can_write', 'Database', roles);
   const canDataset = findPermission('can_write', 'Dataset', roles);
 
@@ -171,7 +148,6 @@ const RightMenu = ({
       ALLOWED_EXTENSIONS,
     );
 
-  const showActionDropdown = canSql || canChart || canDashboard;
   const [allowUploads, setAllowUploads] = useState<boolean>(false);
   const [nonExamplesDBConnected, setNonExamplesDBConnected] =
     useState<boolean>(false);
@@ -284,13 +260,6 @@ const RightMenu = ({
     }
   }, [canDatabase, canDataset]);
 
-  const menuIconAndLabel = (menu: MenuObjectProps) => (
-    <>
-      <i data-test={`menu-item-${menu.label}`} className={`fa ${menu.icon}`} />
-      {menu.label}
-    </>
-  );
-
   const handleMenuSelection = (itemChose: any) => {
     if (itemChose.key === GlobalMenuDataOptions.DB_CONNECTION) {
       setShowDatabaseModal(true);
@@ -309,27 +278,6 @@ const RightMenu = ({
 
   const handleOnHideDatasetModalModal = () => {
     setShowDatasetModal(false);
-  };
-
-  const isDisabled = isAdmin && !allowUploads;
-
-  const tooltipText = t(
-    "Enable 'Allow file uploads to database' in any database's settings",
-  );
-
-  const buildMenuItem = (item: Record<string, any>) => {
-    const disabledText = isDisabled && item.url;
-    return disabledText ? (
-      <Menu.Item key={item.name} css={styledDisabled}>
-        <Tooltip placement="top" title={tooltipText}>
-          {item.label}
-        </Tooltip>
-      </Menu.Item>
-    ) : (
-      <Menu.Item key={item.name} css={styledChildMenu}>
-        {item.url ? <a href={item.url}> {item.label} </a> : item.label}
-      </Menu.Item>
-    );
   };
 
   const onMenuOpen = (openKeys: string[]) => {

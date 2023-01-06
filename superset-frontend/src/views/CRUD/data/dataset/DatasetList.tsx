@@ -26,11 +26,7 @@ import React, {
 } from 'react';
 import rison from 'rison';
 import { useHistory, useLocation } from 'react-router-dom';
-import {
-  createFetchRelated,
-  createFetchDistinct,
-  createErrorHandler,
-} from 'src/views/CRUD/utils';
+import { createErrorHandler } from 'src/views/CRUD/utils';
 import { getItem, LocalStorageKeys } from 'src/utils/localStorageHelpers';
 import { ColumnObject } from 'src/views/CRUD/data/dataset/types';
 import { useListViewResource } from 'src/views/CRUD/hooks';
@@ -52,7 +48,6 @@ import Owner from 'src/types/Owner';
 import withToasts from 'src/components/MessageToasts/withToasts';
 import { Tooltip } from 'src/components/Tooltip';
 import Icons from 'src/components/Icons';
-import FacePile from 'src/components/FacePile';
 import CertifiedBadge from 'src/components/CertifiedBadge';
 import InfoTooltip from 'src/components/InfoTooltip';
 import ImportModelsModal from 'src/components/ImportModal/index';
@@ -355,7 +350,9 @@ const DatasetList: FunctionComponent<DatasetListProps> = ({
           },
         }: any) =>
           changedBy && (
-            <a href={`/superset/profile/${changedBy.username}`}>{changedBy.username}</a>
+            <a href={`/superset/profile/${changedBy.username}`}>
+              {changedBy.username}
+            </a>
           ),
         Header: t('Modified by'),
         accessor: 'changed_by',

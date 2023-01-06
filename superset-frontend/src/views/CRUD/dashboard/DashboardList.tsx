@@ -16,13 +16,12 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import { styled, SupersetClient, t, supersetTheme } from '@superset-ui/core';
+import { styled, SupersetClient, t } from '@superset-ui/core';
 import React, { useState, useMemo, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import rison from 'rison';
 import { isFeatureEnabled, FeatureFlag } from 'src/featureFlags';
 import {
-  createFetchRelated,
   createErrorHandler,
   handleDashboardDelete,
 } from 'src/views/CRUD/utils';
@@ -40,7 +39,6 @@ import ListView, {
 import { dangerouslyGetItemDoNotUse } from 'src/utils/localStorageHelpers';
 import Owner from 'src/types/Owner';
 import withToasts from 'src/components/MessageToasts/withToasts';
-import FacePile from 'src/components/FacePile';
 import Icons from 'src/components/Icons';
 import FaveStar from 'src/components/FaveStar';
 import PropertiesModal from 'src/dashboard/components/PropertiesModal';
@@ -51,20 +49,19 @@ import Dashboard from 'src/dashboard/containers/Dashboard';
 import CertifiedBadge from 'src/components/CertifiedBadge';
 import { bootstrapData } from 'src/preamble';
 import DashboardCard from './DashboardCard';
-import { DashboardStatus } from './types';
 
 const PAGE_SIZE = 25;
 const PASSWORDS_NEEDED_MESSAGE = t(
   'The passwords for the databases below are needed in order to ' +
-  'import them together with the dashboards. Please note that the ' +
-  '"Secure Extra" and "Certificate" sections of ' +
-  'the database configuration are not present in export files, and ' +
-  'should be added manually after the import if they are needed.',
+    'import them together with the dashboards. Please note that the ' +
+    '"Secure Extra" and "Certificate" sections of ' +
+    'the database configuration are not present in export files, and ' +
+    'should be added manually after the import if they are needed.',
 );
 const CONFIRM_OVERWRITE_MESSAGE = t(
   'You are importing one or more dashboards that already exist. ' +
-  'Overwriting might cause you to lose some of your work. Are you ' +
-  'sure you want to overwrite?',
+    'Overwriting might cause you to lose some of your work. Are you ' +
+    'sure you want to overwrite?',
 );
 
 interface DashboardListProps {
