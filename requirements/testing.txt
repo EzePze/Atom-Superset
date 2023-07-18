@@ -26,45 +26,6 @@ flask-testing==0.8.1
     # via -r requirements/testing.in
 freezegun==1.1.0
     # via -r requirements/testing.in
-google-api-core[grpc]==2.11.0
-    # via
-    #   google-cloud-bigquery
-    #   google-cloud-bigquery-storage
-    #   google-cloud-core
-    #   pandas-gbq
-    #   sqlalchemy-bigquery
-google-auth==2.14.1
-    # via
-    #   google-api-core
-    #   google-auth-oauthlib
-    #   google-cloud-core
-    #   pandas-gbq
-    #   pydata-google-auth
-    #   sqlalchemy-bigquery
-google-auth-oauthlib==0.7.1
-    # via
-    #   pandas-gbq
-    #   pydata-google-auth
-google-cloud-bigquery[bqstorage,pandas]==3.4.0
-    # via
-    #   apache-superset
-    #   pandas-gbq
-    #   sqlalchemy-bigquery
-google-cloud-bigquery-storage==2.16.2
-    # via
-    #   google-cloud-bigquery
-    #   pandas-gbq
-    #   sqlalchemy-bigquery
-google-cloud-core==2.3.2
-    # via google-cloud-bigquery
-google-crc32c==1.5.0
-    # via google-resumable-media
-google-resumable-media==2.4.0
-    # via google-cloud-bigquery
-googleapis-common-protos==1.57.0
-    # via
-    #   google-api-core
-    #   grpcio-status
 grpcio==1.51.1
     # via
     #   google-api-core
@@ -94,14 +55,6 @@ proto-plus==1.22.1
     # via
     #   google-cloud-bigquery
     #   google-cloud-bigquery-storage
-protobuf==4.21.10
-    # via
-    #   google-api-core
-    #   google-cloud-bigquery
-    #   google-cloud-bigquery-storage
-    #   googleapis-common-protos
-    #   grpcio-status
-    #   proto-plus
 pyasn1==0.4.8
     # via
     #   pyasn1-modules

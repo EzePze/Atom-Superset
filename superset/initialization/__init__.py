@@ -182,6 +182,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             TableSchemaView,
             TabStateView,
         )
+        from superset.views.search import SearchView
         from superset.views.tags import TagView
         from superset.views.users.api import CurrentUserRestApi
 
@@ -234,6 +235,14 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             category_label=__("Data"),
         )
         appbuilder.add_view(
+            SearchView,
+            "Search",
+            label=__("Search"),
+            icon="fa-dashboard",
+            category="",
+            category_icon="",
+        )
+        appbuilder.add_view(
             DashboardModelView,
             "Dashboards",
             label=__("Dashboards"),
@@ -249,7 +258,6 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             category="",
             category_icon="",
         )
-
         appbuilder.add_link(
             "Datasets",
             label=__("Datasets"),
@@ -262,7 +270,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         appbuilder.add_link(
             "Documentation",
             label=__("Documentation"),
-            href="https://gda-fund.gitbook.io/l3-atom-v3-documentation/",
+            href="https://l3a.gitbook.io/l3a-v3-documentation-2.0/streaming-service/supported-feeds-and-symbols",
             category="",
             category_icon="",
             icon="fa-book"

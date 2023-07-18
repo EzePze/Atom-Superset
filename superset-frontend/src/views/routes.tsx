@@ -110,6 +110,12 @@ const SavedQueryList = lazy(
       /* webpackChunkName: "SavedQueryList" */ 'src/views/CRUD/data/savedquery/SavedQueryList'
     ),
 );
+const SearchPage = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "SearchPage" */ 'src/search/SearchPage'
+    )
+)
 
 type Routes = {
   path: string;
@@ -205,6 +211,10 @@ export const routes: Routes = [
     path: '/dataset/:datasetId',
     Component: AddDataset,
   },
+  {
+    path: '/search/',
+    Component: SearchPage
+  }
 ];
 
 const frontEndRoutes = routes

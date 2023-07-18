@@ -155,6 +155,7 @@ class ChartRestApi(BaseSupersetModelRestApi):
         "created_by.first_name",
         "created_by.id",
         "created_by.last_name",
+        "created_by.username",
         "created_on_delta_humanized",
         "datasource_id",
         "datasource_name_text",

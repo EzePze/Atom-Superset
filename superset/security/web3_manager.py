@@ -1,12 +1,9 @@
 from . import SupersetSecurityManager
-from flask_appbuilder.security.sqla.models import User, RegisterUser
-from flask_appbuilder.security.registerviews import BaseRegisterUser
+from flask_appbuilder.security.sqla.models import User
 from flask_appbuilder.security.views import AuthDBView, UserDBModelView
-from flask_babel import lazy_gettext
 from flask_appbuilder.views import expose
 from flask_appbuilder.security.forms import LoginForm_db
-from sqlalchemy import Column, String, Integer, Sequence
-from sqlalchemy import Boolean
+from sqlalchemy import Column, String
 from flask import request, redirect, g
 from web3 import Web3
 from hexbytes import HexBytes
@@ -17,7 +14,6 @@ from superset.security.manager import SupersetSecurityListWidget
 from superset.constants import RouteMethod
 from flask import Response, jsonify, flash
 from flask_appbuilder._compat import as_unicode
-import json
 
 def generate_nonce():
     return f"Sign this nonce to log in: {str(uuid4())}"
