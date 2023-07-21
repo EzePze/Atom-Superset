@@ -235,14 +235,6 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             category_label=__("Data"),
         )
         appbuilder.add_view(
-            SearchView,
-            "Search",
-            label=__("Search"),
-            icon="fa-dashboard",
-            category="",
-            category_icon="",
-        )
-        appbuilder.add_view(
             DashboardModelView,
             "Dashboards",
             label=__("Dashboards"),
@@ -324,6 +316,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         appbuilder.add_view_no_menu(R)
         appbuilder.add_view_no_menu(SavedQueryView)
         appbuilder.add_view_no_menu(SavedQueryViewApi)
+        appbuilder.add_view_no_menu(SearchView)
         appbuilder.add_view_no_menu(SliceAsync)
         appbuilder.add_view_no_menu(SqlLab)
         appbuilder.add_view_no_menu(SqlMetricInlineView)
