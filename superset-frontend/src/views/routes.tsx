@@ -116,6 +116,12 @@ const SearchPage = lazy(
       /* webpackChunkName: "SearchPage" */ 'src/search/SearchPage'
     )
 )
+const AboutPage = lazy(
+  () =>
+    import(
+      /* webpackChunkName: "AboutPage" */ 'src/about/AboutPage'
+    )
+)
 
 type Routes = {
   path: string;
@@ -214,6 +220,10 @@ export const routes: Routes = [
   {
     path: '/search/',
     Component: SearchPage
+  }
+  {
+    path: '/about/',
+    Component: AboutPage,
   }
 ];
 

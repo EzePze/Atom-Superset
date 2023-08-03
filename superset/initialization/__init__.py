@@ -147,6 +147,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         from superset.reports.api import ReportScheduleRestApi
         from superset.reports.logs.api import ReportExecutionLogRestApi
         from superset.security.api import SecurityRestApi
+        from superset.views.about import AboutView
         from superset.views.access_requests import AccessRequestsModelView
         from superset.views.alerts import AlertView, ReportView
         from superset.views.annotations import AnnotationLayerView
@@ -261,8 +262,8 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
 
         appbuilder.add_link(
             "Documentation",
-            label=__("Documentation"),
-            href="https://l3a.gitbook.io/l3a-v3-documentation-2.0/streaming-service/supported-feeds-and-symbols",
+            label=__("About"),
+            href="/about",
             category="",
             category_icon="",
             icon="fa-book"
@@ -300,6 +301,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         #
         # Setup views with no menu
         #
+        appbuilder.add_view_no_menu(AboutView)
         appbuilder.add_view_no_menu(Api)
         appbuilder.add_view_no_menu(CssTemplateAsyncModelView)
         appbuilder.add_view_no_menu(CsvToDatabaseView)
