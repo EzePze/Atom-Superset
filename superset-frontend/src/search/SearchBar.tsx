@@ -1,8 +1,14 @@
 /* eslint-disable theme-colors/no-literal-colors */
-import React from 'react';
-import { css, styled, SupersetClient } from '@superset-ui/core';
+import React, { useCallback } from 'react';
+import { css, styled, SupersetClient, t } from '@superset-ui/core';
 import Button from 'src/components/Button';
 import Loading from 'src/components/Loading';
+import {
+  getClientErrorMessage,
+  getClientErrorObject,
+} from 'src/utils/getClientErrorObject';
+import { addDangerToast } from 'src/components/MessageToasts/actions';
+import { useDispatch } from 'react-redux';
 import SearchResult from './SearchResult';
 
 const StyledDiv = styled.div`
@@ -43,26 +49,56 @@ export default function SearchBar() {
   const [data, setData] = React.useState({} as any);
   const [loading, setLoading] = React.useState(false as boolean);
 
+  const dispatch = useDispatch();
+  const handleError = useCallback((message: string) => {
+    dispatch(addDangerToast(message));
+  }, []);
+
   async function handleQuerySubmit() {
     setLoading(true);
-    const sqlGetResponse = await SupersetClient.get({
+    await SupersetClient.get({
       endpoint: `/search/query?query=${query}`,
-    });
-    const sqlResponse = sqlGetResponse.json.result;
+    })
+      .then(async sqlGetResponse => {
+        const sqlResponse = sqlGetResponse!.json.result;
 
-    const dataResponse = await SupersetClient.post({
-      endpoint: '/superset/sql_json/',
-      body: JSON.stringify({
-        database_id: 2,
-        sql: sqlResponse,
-      }),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    setSql(sqlResponse);
-    setData(dataResponse.json);
-    setLoading(false);
+        await SupersetClient.post({
+          endpoint: '/superset/sql_json/',
+          body: JSON.stringify({
+            database_id: 1,
+            sql: sqlResponse,
+          }),
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        })
+          .then(response => {
+            setSql(sqlResponse);
+            setData(response.json);
+            setLoading(false);
+          })
+          .catch(response => {
+            setLoading(false);
+            getClientErrorObject(response).then(() => {
+              handleError(
+                getClientErrorMessage(
+                  t('There was an error when executing your query'),
+                ),
+              );
+            });
+          });
+      })
+      .catch(response => {
+        setLoading(false);
+        getClientErrorObject(response).then(error => {
+          handleError(
+            getClientErrorMessage(
+              t('There was an error when processing your search'),
+              error,
+            ),
+          );
+        });
+      });
   }
 
   return (

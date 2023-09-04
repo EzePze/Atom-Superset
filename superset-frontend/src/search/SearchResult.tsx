@@ -16,12 +16,14 @@ const BigNumber = styled.p`
 `;
 
 const SqlText = styled.p`
+  margin: auto;
   margin-top: 20px;
   font-size: 18px;
   color: #808080;
   .fade-in {
     transition: opacity ease 2s;
   }
+  width: 80%;
 `;
 
 const TableContainer = styled.div`
@@ -63,9 +65,20 @@ const basicFormData = {
   viz_type: 'table',
 };
 
+interface responseData {
+  data: Record<string, object>[];
+}
+
 interface SearchResultProps {
-  data: any;
+  data: responseData;
   sql: string;
+}
+
+function shouldBeBigNumber(data: any) {
+  const vals = Object.values(data.data[0]);
+  return (
+    data.data.length === 1 && vals.length === 1 && typeof vals[0] === 'number'
+  );
 }
 
 export default function SearchResult({ data, sql }: SearchResultProps) {
@@ -74,9 +87,9 @@ export default function SearchResult({ data, sql }: SearchResultProps) {
       {/* {console.log(data)}
       {console.log(sqlToChartData(data))} */}
       <SqlText>{sql}</SqlText>
-      {data.data.length > 0 &&
-        (data.data.length === 1 ? (
-          <BigNumber>{Object.values(data.data[0])[0].toFixed(2)}</BigNumber>
+      {data.data?.length > 0 &&
+        (shouldBeBigNumber(data) ? (
+          <BigNumber>{Object.values(data.data[0])[0]}</BigNumber>
         ) : (
           <TableContainer>
             <SuperChart

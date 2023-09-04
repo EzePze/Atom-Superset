@@ -63,6 +63,9 @@ class Web3AuthDBView(AuthDBView):
             form = LoginForm_db()
             if form.validate_on_submit():
                 user = self.appbuilder.sm.find_user(form.username.data)
+                if not user:
+                    flash(as_unicode(self.invalid_login_message), "warning")
+                    return redirect(self.appbuilder.get_url_for_login)
                 # Since Web3 users don't have passwords, we need to protect against non-web3 login attempts
                 if user.address:
                     flash("Please login with web3", "warning")
@@ -126,12 +129,15 @@ class Web3SecurityManager(SupersetSecurityManager):
         """
         return self.get_session.query(self.user_model).filter_by(address=address).first()
 
-    def add_user(self, username=None, first_name="", last_name="", email="", role='Public', password=None, nonce=None, address=None):
+    def add_user(self, username=None, first_name="", last_name="", email=None, role='Public', password=None, nonce=None, address=None):
         """
         Adds a new user to the database
         """
         if not address and password:
             return super(Web3SecurityManager, self).add_user(username, first_name, last_name, email, role, password)
+        # Bandaid fix to get around the uniqueness constraint
+        if not email:
+            email = f"{address}@web3.com"
         user = self.user_model()
         user.nonce = nonce
         user.address = address

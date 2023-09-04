@@ -111,17 +111,11 @@ const SavedQueryList = lazy(
     ),
 );
 const SearchPage = lazy(
-  () =>
-    import(
-      /* webpackChunkName: "SearchPage" */ 'src/search/SearchPage'
-    )
-)
+  () => import(/* webpackChunkName: "SearchPage" */ 'src/search/SearchPage'),
+);
 const AboutPage = lazy(
-  () =>
-    import(
-      /* webpackChunkName: "AboutPage" */ 'src/about/AboutPage'
-    )
-)
+  () => import(/* webpackChunkName: "AboutPage" */ 'src/about/AboutPage'),
+);
 
 type Routes = {
   path: string;
@@ -219,12 +213,12 @@ export const routes: Routes = [
   },
   {
     path: '/search/',
-    Component: SearchPage
-  }
+    Component: SearchPage,
+  },
   {
     path: '/about/',
     Component: AboutPage,
-  }
+  },
 ];
 
 const frontEndRoutes = routes
