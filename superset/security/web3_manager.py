@@ -1,12 +1,9 @@
 from . import SupersetSecurityManager
-from flask_appbuilder.security.sqla.models import User, RegisterUser
-from flask_appbuilder.security.registerviews import BaseRegisterUser
+from flask_appbuilder.security.sqla.models import User
 from flask_appbuilder.security.views import AuthDBView, UserDBModelView
-from flask_babel import lazy_gettext
 from flask_appbuilder.views import expose
 from flask_appbuilder.security.forms import LoginForm_db
-from sqlalchemy import Column, String, Integer, Sequence
-from sqlalchemy import Boolean
+from sqlalchemy import Column, String
 from flask import request, redirect, g
 from web3 import Web3
 from hexbytes import HexBytes
@@ -17,7 +14,6 @@ from superset.security.manager import SupersetSecurityListWidget
 from superset.constants import RouteMethod
 from flask import Response, jsonify, flash
 from flask_appbuilder._compat import as_unicode
-import json
 
 def generate_nonce():
     return f"Sign this nonce to log in: {str(uuid4())}"
@@ -67,6 +63,9 @@ class Web3AuthDBView(AuthDBView):
             form = LoginForm_db()
             if form.validate_on_submit():
                 user = self.appbuilder.sm.find_user(form.username.data)
+                if not user:
+                    flash(as_unicode(self.invalid_login_message), "warning")
+                    return redirect(self.appbuilder.get_url_for_login)
                 # Since Web3 users don't have passwords, we need to protect against non-web3 login attempts
                 if user.address:
                     flash("Please login with web3", "warning")
@@ -130,12 +129,15 @@ class Web3SecurityManager(SupersetSecurityManager):
         """
         return self.get_session.query(self.user_model).filter_by(address=address).first()
 
-    def add_user(self, username=None, first_name="", last_name="", email="", role='Public', password=None, nonce=None, address=None):
+    def add_user(self, username=None, first_name="", last_name="", email=None, role='Public', password=None, nonce=None, address=None):
         """
         Adds a new user to the database
         """
         if not address and password:
             return super(Web3SecurityManager, self).add_user(username, first_name, last_name, email, role, password)
+        # Bandaid fix to get around the uniqueness constraint
+        if not email:
+            email = f"{address}@web3.com"
         user = self.user_model()
         user.nonce = nonce
         user.address = address

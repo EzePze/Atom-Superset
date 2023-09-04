@@ -58,6 +58,7 @@ matplotlib-inline==0.1.3
     # via ipython
 mysqlclient==2.1.0
     # via apache-superset
+openai
 openpyxl==3.0.7
     # via tabulator
 parso==0.8.3
@@ -122,6 +123,6 @@ unicodecsv==0.14.1
     #   tabulator
 xlrd==2.0.1
     # via tabulator
-web3
+web3>=6.6.0
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

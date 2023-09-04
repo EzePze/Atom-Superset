@@ -280,10 +280,10 @@ SCHEDULED_QUERIES: Dict[str, Any] = {}
 # GLOBALS FOR APP Builder
 # ------------------------------
 # Uncomment to setup Your App name
-APP_NAME = "L3 Atom Query Service"
+APP_NAME = "Pythia"
 
 # Specify the App icon
-APP_ICON = "/static/assets/images/l3_atom_logo.png"
+APP_ICON = "/static/assets/images/pythia_logo.png"
 
 # Specify where clicking the logo would take the user
 # e.g. setting it to '/' would take the user to '/superset/welcome/'
@@ -1278,7 +1278,7 @@ EMAIL_PAGE_RENDER_WAIT = int(timedelta(seconds=30).total_seconds())
 BUG_REPORT_URL = None
 
 # Send user to a link where they can read more about Superset
-DOCUMENTATION_URL = "https://gda-fund.gitbook.io/l3-atom-v3-documentation/"
+DOCUMENTATION_URL = "https://l3a.gitbook.io/l3a-v3-documentation-2.0/streaming-service/supported-feeds-and-symbols"
 DOCUMENTATION_TEXT = "Documentation"
 DOCUMENTATION_ICON = None  # Recommended size: 16x16
 

@@ -330,6 +330,13 @@ class BaseSupersetView(BaseView):
 def menu_data(user: User) -> Dict[str, Any]:
     menu = appbuilder.menu.get_data()
 
+    menu.insert(0, {
+        "name": "Search",
+        "icon": "fa-search",
+        "label": __("Search"),
+        "url": "/search/"
+    })
+
     languages = {}
     for lang in appbuilder.languages:
         languages[lang] = {

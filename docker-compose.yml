@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-x-superset-image: &superset-image apache/superset:${TAG:-latest-dev}
+x-superset-image: &superset-image 750462544805.dkr.ecr.ap-southeast-2.amazonaws.com/l3-superset:latest
 x-superset-user: &superset-user root
 x-superset-depends-on: &superset-depends-on
   - db

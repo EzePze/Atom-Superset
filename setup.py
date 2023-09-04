@@ -120,7 +120,7 @@ setup(
         "sqlparse>=0.4.3, <0.5",
         "tabulate>=0.8.9, <0.9",
         "typing-extensions>=4, <5",
-        "web3>=5.24.0, <6",
+        "web3",
         "wtforms>=2.3.3, <2.4",
         "wtforms-json",
     ],

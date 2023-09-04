@@ -147,6 +147,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         from superset.reports.api import ReportScheduleRestApi
         from superset.reports.logs.api import ReportExecutionLogRestApi
         from superset.security.api import SecurityRestApi
+        from superset.views.about import AboutView
         from superset.views.access_requests import AccessRequestsModelView
         from superset.views.alerts import AlertView, ReportView
         from superset.views.annotations import AnnotationLayerView
@@ -182,6 +183,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             TableSchemaView,
             TabStateView,
         )
+        from superset.views.search import SearchView
         from superset.views.tags import TagView
         from superset.views.users.api import CurrentUserRestApi
 
@@ -249,7 +251,6 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
             category="",
             category_icon="",
         )
-
         appbuilder.add_link(
             "Datasets",
             label=__("Datasets"),
@@ -261,8 +262,8 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
 
         appbuilder.add_link(
             "Documentation",
-            label=__("Documentation"),
-            href="https://gda-fund.gitbook.io/l3-atom-v3-documentation/",
+            label=__("About"),
+            href="/about",
             category="",
             category_icon="",
             icon="fa-book"
@@ -300,6 +301,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         #
         # Setup views with no menu
         #
+        appbuilder.add_view_no_menu(AboutView)
         appbuilder.add_view_no_menu(Api)
         appbuilder.add_view_no_menu(CssTemplateAsyncModelView)
         appbuilder.add_view_no_menu(CsvToDatabaseView)
@@ -316,6 +318,7 @@ class SupersetAppInitializer:  # pylint: disable=too-many-public-methods
         appbuilder.add_view_no_menu(R)
         appbuilder.add_view_no_menu(SavedQueryView)
         appbuilder.add_view_no_menu(SavedQueryViewApi)
+        appbuilder.add_view_no_menu(SearchView)
         appbuilder.add_view_no_menu(SliceAsync)
         appbuilder.add_view_no_menu(SqlLab)
         appbuilder.add_view_no_menu(SqlMetricInlineView)

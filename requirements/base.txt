@@ -130,7 +130,7 @@ jinja2==3.0.3
     # via
     #   flask
     #   flask-babel
-jsonschema==3.2.0
+jsonschema>=4.0.0
     # via flask-appbuilder
 kombu==5.2.4
     # via celery
@@ -214,7 +214,7 @@ pytz==2021.3
     #   celery
     #   flask-babel
     #   pandas
-pyyaml==5.4.1
+pyyaml>=5.4.1
     # via
     #   apache-superset
     #   apispec
@@ -279,7 +279,7 @@ wtforms==2.3.3
     #   wtforms-json
 wtforms-json==0.3.3
     # via apache-superset
-web3==5.24.0
+web3>=6.6.0
     # via apache-superset
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools
