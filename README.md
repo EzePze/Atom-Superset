@@ -3,7 +3,7 @@
 
 A proof of concept fork of [Apache Superset](https://github.com/apache/superset) with added natural language queries, XNode integration, and attempted Web3 account sign-in.
 
-Try it out at [here](https://query.tech.openmesh.network/search/).
+Try it out [here](https://query.tech.openmesh.network/search/).
 
 ## Screenshots
 ![](RELEASING/pic-window-240214-1108-26.png)
