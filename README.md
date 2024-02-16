@@ -1,7 +1,7 @@
 # Pythia V1
 ![](superset-frontend/src/assets/images/pythia_logo.png)
 
-A proof of concept fork of [Apache Superset](https://github.com/apache/superset) with added natural language queries, XNode integration, and attempted Web3 account sign-in.
+A proof of concept fork of [Apache Superset](https://github.com/apache/superset) with added natural language queries, Xnode integration, and attempted Web3 account sign-in.
 
 Try it out [here](https://query.tech.openmesh.network/search/).
 
@@ -10,7 +10,7 @@ Try it out [here](https://query.tech.openmesh.network/search/).
 ![](RELEASING/pic-window-240214-1108-49.png)
 
 ## Running locally
-This version of Pythia is tightly coupled with our underlying XNode deployment system, so running it locally is not recommended.
+This version of Pythia is tightly coupled with our underlying Xnode deployment system, so running it locally is not recommended.
 
 ## Info on changes
 
@@ -23,9 +23,9 @@ If a query is fails the user just gets a generic error message.
 Additionaly, for this version we assume no sensitive data is stored in the main database.
 In future versions a more robust permission scheme should be added to prevent the AI from leaking info.
 
-### XNode integration
-Pythia is able to analyse data coming from an XNode.
-The [collectors](https://github.com/Openmesh-Network/openmesh-collectors) and pythia are both run as helm charts on a live XNode.
+### Xnode integration
+Pythia is able to analyse data coming from an Xnode.
+The [collectors](https://github.com/Openmesh-Network/openmesh-collectors) and pythia are both run as helm charts on a live Xnode.
 Running on the same kubernetes, they also share the same postgres database and are configured to do so.
 
 ### Web3 account sign-in
